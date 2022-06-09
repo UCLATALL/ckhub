@@ -1,0 +1,17 @@
+{{- if gt (int .Values.ckhub.replicas) 1 -}}
+apiVersion: {{ include "kubernetes.pdb.version" . }}
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "ckhub.name" . | quote }}
+  labels:
+    {{- include "ckhub.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  minAvailable: {{ div .Values.ckhub.replicas 2 }}
+  selector:
+    matchLabels:
+      {{- include "ckhub.deployment.selector" . | nindent 6 }}
+{{- end }}

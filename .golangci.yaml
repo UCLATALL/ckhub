@@ -1,0 +1,909 @@
+run:
+  build-tags: [] # list of build tags
+  concurrency: 4 # available CPU number
+  go: 1.18 # the go version
+  issues-exit-code: 1 # exit code when issue was found
+  modules-download-mode: readonly # readonly|release|vendor
+  tests: true # include tests
+  timeout: 5m # timeout for analysis
+  skip-dirs: # dirs to skip
+    - target
+  skip-dirs-use-default: true # skip vendor, third_party, test_data
+
+output:
+  format: colored-line-number # colored-line-number|line-number|json|tab
+  print-issued-lines: true # print lines of code with issue
+  print-linter-name: true # print linter name in the end of issue text
+
+issues:
+  exclude: [] # list of regexps of issue texts to exclude
+  exclude-rules: # path, linter, text and source exclude rules
+    - path: _test\.go
+      linters:  
+        - goerr113
+  exclude-use-default: false # use default exclude patterns
+  max-issues-per-linter: 0 # maximum issues count per one linter
+  max-same-issues: 0 # maximum issues count with same text
+  new: false # show only new issues
+  new-from-rev: "" # show only new issues created after git revision
+  new-from-patch: "" # show only new issues created in git patch
+
+linters:
+  disable-all: true
+  fast: false
+  presets: []
+  enable:
+    - asciicheck # Simple linter to check that your code does not contain non-ASCII identifiers [fast: true, auto-fix: false]
+    - bidichk # Checks for dangerous unicode character sequences [fast: true, auto-fix: false]
+    - dogsled # Checks assignments with too many blank identifiers (e.g. x, _, _, _, := f()) [fast: true, auto-fix: false]
+    # - bodyclose # checks whether HTTP response body is closed successfully [fast: false, auto-fix: false]
+    # - containedctx # containedctx is a linter that detects struct contained context.Context field [fast: true, auto-fix: false]
+    # - contextcheck # check the function whether use a non-inherited context [fast: false, auto-fix: false]
+    - cyclop # checks function and package cyclomatic complexity [fast: false, auto-fix: false]
+    - deadcode # Finds unused code [fast: false, auto-fix: false]
+    # - decorder # check declaration order and count of types, constants, variables and functions [fast: true, auto-fix: false]
+    - depguard # Go linter that checks if package imports are in a list of acceptable packages [fast: false, auto-fix: false]
+    # - dupl # Tool for code clone detection [fast: true, auto-fix: false]
+    - durationcheck # check for two durations multiplied together [fast: false, auto-fix: false]
+    - errcheck # Errcheck is a program for checking for unchecked errors in go programs. These unchecked errors can be critical bugs in some cases [fast: false, auto-fix: false]
+    - errchkjson # Checks types passed to the json encoding functions. Reports unsupported types and optionally reports occations, where the check for the returned error can be omitted. [fast: false, auto-fix: false]
+    # - errname # Checks that sentinel errors are prefixed with the `Err` and error types are suffixed with the `Error`. [fast: false, auto-fix: false]
+    - errorlint # errorlint is a linter for that can be used to find code that will cause problems with the error wrapping scheme introduced in Go 1.13. [fast: false, auto-fix: false]
+    - exhaustive # check exhaustiveness of enum switch statements [fast: false, auto-fix: false]
+    # - exhaustivestruct # Checks if all struct's fields are initialized [fast: false, auto-fix: false]
+    - exportloopref # checks for pointers to enclosing loop variables [fast: false, auto-fix: false]
+    - forbidigo # Forbids identifiers [fast: true, auto-fix: false]
+    - forcetypeassert # finds forced type assertions [fast: true, auto-fix: false]
+    - funlen # Tool for detection of long functions [fast: true, auto-fix: false]
+    - gci # Gci controls golang package import order and makes it always deterministic. [fast: true, auto-fix: false]
+    # - gochecknoglobals # check that no global variables exist [fast: true, auto-fix: false]
+    # - gochecknoinits # Checks that no init functions are present in Go code [fast: true, auto-fix: false]
+    - gocognit # Computes and checks the cognitive complexity of functions [fast: true, auto-fix: false]
+    - goconst # Finds repeated strings that could be replaced by a constant [fast: true, auto-fix: false]
+    - gocritic # Provides diagnostics that check for bugs, performance and style issues. [fast: false, auto-fix: false]
+    - gocyclo # Computes and checks the cyclomatic complexity of functions [fast: true, auto-fix: false]
+    - godot # Check if comments end in a period [fast: true, auto-fix: true]
+    - godox # Tool for detection of FIXME, TODO and other comment keywords [fast: true, auto-fix: false]
+    - goerr113 # Golang linter to check the errors handling expressions [fast: false, auto-fix: false]
+    - gofmt # Gofmt checks whether code was gofmt-ed. By default this tool runs with -s option to check for code simplification [fast: true, auto-fix: true]
+    # - gofumpt # Gofumpt checks whether code was gofumpt-ed. [fast: true, auto-fix: true]
+    # - goheader # Checks is file header matches to pattern [fast: true, auto-fix: false]
+    - goimports # In addition to fixing imports, goimports also formats your code in the same style as gofmt. [fast: true, auto-fix: true]
+    # - gomnd # An analyzer to detect magic numbers. [fast: true, auto-fix: false]
+    - gomoddirectives # Manage the use of 'replace', 'retract', and 'excludes' directives in go.mod. [fast: true, auto-fix: false]
+    - gomodguard # Allow and block list linter for direct Go module dependencies. This is different from depguard where there are different block types for example version constraints and module recommendations. [fast: true, auto-fix: false]
+    - goprintffuncname # Checks that printf-like functions are named with `f` at the end [fast: true, auto-fix: false]
+    - gosec # Inspects source code for security problems [fast: false, auto-fix: false]
+    - gosimple # (megacheck) Linter for Go source code that specializes in simplifying a code [fast: false, auto-fix: false]
+    - govet # (vet, vetshadow) Vet examines Go source code and reports suspicious constructs, such as Printf calls whose arguments do not align with the format string [fast: false, auto-fix: false]
+    - grouper # An analyzer to analyze expression groups. [fast: true, auto-fix: false]
+    - ifshort # Checks that your code uses short syntax for if-statements whenever possible [fast: true, auto-fix: false]
+    - importas # Enforces consistent import aliases [fast: false, auto-fix: false]
+    - ineffassign # Detects when assignments to existing variables are not used [fast: true, auto-fix: false]
+    # - ireturn # Accept Interfaces, Return Concrete Types [fast: false, auto-fix: false]
+    - lll # Reports long lines [fast: true, auto-fix: false]
+    - maintidx # maintidx measures the maintainability index of each function. [fast: true, auto-fix: false]
+    - makezero # Finds slice declarations with non-zero initial length [fast: false, auto-fix: false]
+    - misspell # Finds commonly misspelled English words in comments [fast: true, auto-fix: true]
+    - nakedret # Finds naked returns in functions greater than a specified function length [fast: true, auto-fix: false]
+    - nestif # Reports deeply nested if statements [fast: true, auto-fix: false]
+    # - nilerr # Finds the code that returns nil even if it checks that the error is not nil. [fast: false, auto-fix: false]
+    - nilnil # Checks that there is no simultaneous return of `nil` error and an invalid value. [fast: false, auto-fix: false]
+    # - nlreturn # nlreturn checks for a new line before return and branch statements to increase code clarity [fast: true, auto-fix: false]
+    # - noctx # noctx finds sending http request without context.Context [fast: false, auto-fix: false]
+    - nolintlint # Reports ill-formed or insufficient nolint directives [fast: true, auto-fix: false]
+    # - paralleltest # paralleltest detects missing usage of t.Parallel() method in your Go test [fast: true, auto-fix: false]
+    - prealloc # Finds slice declarations that could potentially be preallocated [fast: true, auto-fix: false]
+    - predeclared # find code that shadows one of Go's predeclared identifiers [fast: true, auto-fix: false]
+    - promlinter # Check Prometheus metrics naming via promlint [fast: true, auto-fix: false]
+    - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go. Drop-in replacement of golint. [fast: false, auto-fix: false]
+    # - rowserrcheck # checks whether Err of rows is checked successfully [fast: false, auto-fix: false]
+    # - sqlclosecheck # Checks that sql.Rows and sql.Stmt are closed. [fast: false, auto-fix: false]
+    - staticcheck # (megacheck) # Staticcheck is a go vet on steroids, applying a ton of static analysis checks [fast: false, auto-fix: false]
+    # - structcheck # Finds unused struct fields [fast: false, auto-fix: false]
+    - stylecheck # Stylecheck is a replacement for golint [fast: false, auto-fix: false]
+    # - tagliatelle # Checks the struct tags. [fast: true, auto-fix: false]
+    - tenv # tenv is analyzer that detects using os.Setenv instead of t.Setenv since Go1.17 [fast: false, auto-fix: false]
+    # - testpackage # linter that makes you use a separate _test package [fast: true, auto-fix: false]
+    # - thelper # thelper detects golang test helpers without t.Helper() call and checks the consistency of test helpers [fast: false, auto-fix: false]
+    # - tparallel # tparallel detects inappropriate usage of t.Parallel() method in your Go test codes [fast: false, auto-fix: false]
+    - typecheck # Like the front-end of a Go compiler, parses and type-checks Go code [fast: false, auto-fix: false]
+    - unconvert # Remove unnecessary type conversions [fast: false, auto-fix: false]
+    # - unparam # Reports unused function parameters [fast: false, auto-fix: false]
+    # - unused # (megacheck) # Checks Go code for unused constants, variables, functions and types [fast: false, auto-fix: false]
+    - varcheck # Finds unused global variables and constants [fast: false, auto-fix: false]
+    # - varnamelen # checks that the length of a variable's name matches its scope [fast: false, auto-fix: false]
+    # - wastedassign # wastedassign finds wasted assignment statements. [fast: false, auto-fix: false]
+    - whitespace # Tool for detection of leading and trailing whitespace [fast: true, auto-fix: true]
+    - wrapcheck # Checks that errors returned from external packages are wrapped [fast: false, auto-fix: false]
+    # - wsl # Whitespace Linter - Forces you to use empty lines! [fast: true, auto-fix: false]
+  disable: []
+
+linters-settings:
+  bidichk:
+    left-to-right-embedding: true
+    right-to-left-embedding: true
+    pop-directional-formatting: true
+    left-to-right-override: true
+    right-to-left-override: true
+    left-to-right-isolate: true
+    right-to-left-isolate: true
+    first-strong-isolate: true
+    pop-directional-isolate: true
+
+  cyclop:
+    max-complexity: 20
+    package-average: 0.0
+    skip-tests: false
+
+  decorder:
+    dec-order:
+      - type
+      - const
+      - var
+      - func
+    disable-dec-order-check: false
+    disable-init-func-first-check: false
+    disable-dec-num-check: false
+
+  depguard:
+    list-type: blacklist
+    include-go-root: true
+    packages: []
+    packages-with-error-messages: []
+    additional-guards: []
+
+  dogsled:
+    max-blank-identifiers: 2
+
+  dupl:
+    threshold: 100 # tokens count to trigger issue
+
+  errcheck:
+    check-type-assertions: true # checking of errors in type assertions
+    check-blank: false # errors assignment to blank identifier
+    disable-default-exclusions: false
+    exclude-functions: []
+
+  errchkjson:
+    check-error-free-encoding: false
+    report-no-exported: true
+
+  errorlint:
+    # Check whether fmt.Errorf uses the %w verb for formatting errors.
+    errorf: true
+    # Check for plain type assertions and type switches
+    asserts: true
+    # Check for plain error comparisons
+    comparison: true
+
+  exhaustive:
+    # Check switch statements in generated files also.
+    check-generated: false
+    # Presence of "default" case in switch statements satisfies exhaustiveness
+    default-signifies-exhaustive: true
+    # Enum members matching the supplied regex do not have to be listed in
+    # switch statements to satisfy exhaustiveness.
+    ignore-enum-members: ""
+    # Consider enums only in package scopes, not in inner scopes.
+    package-scope-only: false
+
+  exhaustivestruct:
+    # A list of expressions to match struct packages and names.
+    struct-patterns: []
+
+  forbidigo:
+    forbid:
+      - 'fmt\.Print.*'
+    exclude_godoc_examples: true
+
+  funlen:
+    lines: 200
+    statements: 50
+
+  gci:
+    no-inline-comments: true
+    no-prefix-comments: true
+    sections:
+      - standard
+      - default
+      - prefix(github.com/uclatall/ckhub)
+    section-separators:
+      - newLine
+
+  gocognit:
+    min-complexity: 20 # minimal code complexity to report
+
+  goconst:
+    # Minimal length of string constant.
+    min-len: 3
+    # Minimum occurrences of constant string count to trigger issue.
+    min-occurrences: 3
+    # Ignore test files.
+    ignore-tests: true
+    # Look for existing constants matching the values.
+    match-constant: false
+    # Search also for duplicated numbers.
+    numbers: true
+    # Minimum value, only works with goconst.numbers
+    min: 3
+    # Maximum value, only works with goconst.numbers
+    max: 3
+    # Ignore when constant is not used as function argument.
+    ignore-calls: true
+
+  gocritic:
+    enabled-tags: []
+    enabled-checks:
+      - appendAssign # Detects suspicious append result assignments
+      - appendCombine # Detects `append` chains to the same slice that can be done in a single `append` call
+      - argOrder # Detects suspicious arguments order
+      - assignOp # Detects assignments that can be simplified by using assignment operators
+      - badCall # Detects suspicious function calls
+      - badCond # Detects suspicious condition expressions
+      - badLock # Detects suspicious mutex lock/unlock operations
+      - badRegexp # Detects suspicious regexp patterns
+      - boolExprSimplify # Detects bool expressions that can be simplified
+      - builtinShadow # Detects when predeclared identifiers are shadowed in assignments
+      - builtinShadowDecl # Detects top-level declarations that shadow the predeclared identifiers
+      - captLocal # Detects capitalized names for local variables
+      - caseOrder # Detects erroneous case order inside switch statements
+      - codegenComment # Detects malformed 'code generated' file comments
+      - commentFormatting # Detects comments with non-idiomatic formatting
+      - commentedOutCode # Detects commented-out code inside function bodies
+      - commentedOutImport # Detects commented-out imports
+      - defaultCaseOrder # Detects when default case in switch isn't on 1st or last position
+      - deferUnlambda # Detects deferred function literals that can be simplified
+      - deprecatedComment # Detects malformed 'deprecated' doc-comments
+      - docStub # Detects comments that silence go lint complaints about doc-comment
+      - dupArg # Detects suspicious duplicated arguments
+      - dupBranchBody # Detects duplicated branch bodies inside conditional statements
+      - dupCase # Detects duplicated case clauses inside switch or select statements
+      - dupImport # Detects multiple imports of the same package under different aliases
+      - dupSubExpr # Detects suspicious duplicated sub-expressions
+      - elseif # Detects else with nested if statement that can be replaced with else-if
+      - emptyDecl # Detects suspicious empty declarations blocks
+      - emptyFallthrough # Detects fallthrough that can be avoided by using multi case values
+      - emptyStringTest # Detects empty string checks that can be written more idiomatically
+      - equalFold # Detects unoptimal strings/bytes case-insensitive comparison
+      - evalOrder # Detects unwanted dependencies on the evaluation order
+      - exitAfterDefer # Detects calls to exit/fatal inside functions that use defer
+      - exposedSyncMutex # Detects exposed methods from sync.Mutex and sync.RWMutex
+      - externalErrorReassign # Detects suspicious reassigment of error from another package
+      - filepathJoin # Detects problems in filepath.Join() function calls
+      - flagDeref # Detects immediate dereferencing of `flag` package pointers
+      - flagName # Detects suspicious flag names
+      - hexLiteral # Detects hex literals that have mixed case letter digits
+      - httpNoBody # Detects nil usages in http.NewRequest calls, suggesting http.NoBody as an alternative
+      - hugeParam # Detects params that incur excessive amount of copying
+      - ifElseChain # Detects repeated if-else statements and suggests to replace them with switch statement
+      - importShadow # Detects when imported package names shadowed in the assignments
+      - indexAlloc # Detects strings.Index calls that may cause unwanted allocs
+      - initClause # Detects non-assignment statements inside if/switch init clause
+      - ioutilDeprecated # Detects deprecated io/ioutil package usages
+      - mapKey # Detects suspicious map literal keys
+      - methodExprCall # Detects method expression call that can be replaced with a method call
+      - nestingReduce # Finds where nesting level could be reduced
+      - newDeref # Detects immediate dereferencing of `new` expressions
+      - nilValReturn # Detects return statements those results evaluate to nil
+      - octalLiteral # Detects old-style octal literals
+      - offBy1 # Detects various off-by-one kind of errors
+      - paramTypeCombine # Detects if function parameters could be combined by type and suggest the way to do it
+      - preferDecodeRune # Detects expressions like []rune(s)[0] that may cause unwanted rune slice allocation
+      - preferFilepathJoin # Detects concatenation with os.PathSeparator which can be replaced with filepath.Join
+      - preferFprint # Detects fmt.Sprint(f|ln) calls which can be replaced with fmt.Fprint(f|ln)
+      - preferStringWriter # Detects w.Write or io.WriteString calls which can be replaced with w.WriteString
+      - preferWriteByte # Detects WriteRune calls with byte literal argument and reports to use WriteByte instead
+      - ptrToRefParam # Detects input and output parameters that have a type of pointer to referential type
+      - rangeExprCopy # Detects expensive copies of `for` loop range expressions
+      - rangeValCopy # Detects loops that copy big objects during each iteration
+      - redundantSprint # Detects redundant fmt.Sprint calls
+      - regexpMust # Detects `regexp.Compile*` that can be replaced with `regexp.MustCompile*`
+      - regexpPattern # Detects suspicious regexp patterns
+      - regexpSimplify # Detects regexp patterns that can be simplified
+      - returnAfterHttpError # Detects suspicious http.Error call without following return
+      # - ruleguard # Runs user-defined rules using ruleguard linter
+      - singleCaseSwitch # Detects switch statements that could be better written as if statement
+      - sliceClear # Detects slice clear loops, suggests an idiom that is recognized by the Go compiler
+      - sloppyLen # Detects usage of `len` when result is obvious or doesn't make sense
+      - sloppyReassign # Detects suspicious/confusing re-assignments
+      - sloppyTypeAssert # Detects redundant type assertions
+      - sortSlice # Detects suspicious sort.Slice calls
+      - sprintfQuotedString # Detects "%s" formatting directives that can be replaced with %q
+      - sqlQuery # Detects issue in Query() and Exec() calls
+      - stringConcatSimplify # Detects string concat operations that can be simplified
+      - stringXbytes # Detects redundant conversions between string and []byte
+      - switchTrue # Detects switch-over-bool statements that use explicit `true` tag value
+      - syncMapLoadAndDelete # Detects sync.Map load+delete operations that can be replaced with LoadAndDelete
+      - timeExprSimplify # Detects manual conversion to milli- or microseconds
+      - tooManyResultsChecker # Detects function with too many results
+      - truncateCmp # Detects potential truncation issues when comparing ints of different sizes
+      - typeAssertChain # Detects repeated type assertions and suggests to replace them with type switch statement
+      # - typeDefFirst # Detects method declarations preceding the type definition itself
+      - typeSwitchVar # Detects type switches that can benefit from type guard clause with variable
+      - typeUnparen # Detects unneded parenthesis inside type expressions and suggests to remove them
+      - underef # Detects dereference expressions that can be omitted
+      - unlabelStmt # Detects redundant statement labels
+      - unlambda # Detects function literals that can be simplified
+      - unnamedResult # Detects unnamed results that may benefit from names
+      - unnecessaryBlock # Detects unnecessary braced statement blocks
+      - unnecessaryDefer # Detects redundantly deferred calls
+      - unslice # Detects slice expressions that can be simplified to sliced expression itself
+      - valSwap # Detects value swapping code that are not using parallel assignment
+      - weakCond # Detects conditions that are unsafe due to not being exhaustive
+      # - whyNoLint # Ensures that `//nolint` comments include an explanation
+      - wrapperFunc # Detects function calls that can be replaced with convenience wrappers
+      - yodaStyleExpr # Detects Yoda style expressions and suggests to replace them
+    disabled-checks: []
+    settings:
+      captLocal:
+        # Whether to restrict checker to params only.
+        paramsOnly: false
+      elseif:
+        # Whether to skip balanced if-else pairs.
+        skipBalanced: true
+      hugeParam:
+        # Size in bytes that makes the warning trigger.
+        sizeThreshold: 512
+      nestingReduce:
+        # Min number of statements inside a branch to trigger a warning.
+        bodyWidth: 5
+      rangeExprCopy:
+        # Size in bytes that makes the warning trigger.
+        sizeThreshold: 512
+        # Whether to check test functions
+        skipTestFuncs: true
+      rangeValCopy:
+        # Size in bytes that makes the warning trigger.
+        sizeThreshold: 128
+        # Whether to check test functions.
+        skipTestFuncs: true
+      tooManyResultsChecker:
+        # Maximum number of results.
+        maxResults: 3
+      truncateCmp:
+        # Whether to skip int/uint/uintptr types.
+        skipArchDependent: true
+      underef:
+        # Whether to skip (*x).method() calls where x is a pointer receiver.
+        skipRecvDeref: false
+      unnamedResult:
+        # Whether to check exported functions.
+        checkExported: true
+
+  gocyclo:
+    min-complexity: 20 # minimal code complexity to report
+
+  godot:
+    # Comments to be checked: `declarations`, `toplevel`, or `all`.
+    # Default: declarations
+    scope: toplevel
+    # List of regexps for excluding particular comment lines from check.
+    exclude:
+      # Exclude todo and fixme comments.
+      - "^fixme:"
+      - "^todo:"
+    # Check that each sentence ends with a period.
+    # Default: true
+    period: false
+    # Check that each sentence starts with a capital letter.
+    # Default: false
+    capital: true
+
+  godox:
+    keywords:
+      - TODO
+      - FIXME
+
+  gofmt:
+    simplify: true
+
+  gofumpt:
+    # Select the Go version to target.
+    lang-version: "1.18"
+    # Choose whether to use the extra rules.
+    extra-rules: true
+
+  goheader:
+    values:
+      const: {}
+      # define here const type values in format k:v, for example:
+      # YEAR: 2020
+      # COMPANY: MY COMPANY
+      regexp: {}
+      # define here regexp type values, for example
+      # AUTHOR: .*@mycompany\.com
+    template: ""
+    #    {{ AUTHOR }} {{ COMPANY }} {{ YEAR }}
+    #    SPDX-License-Identifier: Apache-2.0
+    #
+    #    Licensed under the Apache License, Version 2.0 (the "License");
+    #    you may not use this file except in compliance with the License.
+    #    You may obtain a copy of the License at:
+    #
+    #      http://www.apache.org/licenses/LICENSE-2.0
+    #
+    #    Unless required by applicable law or agreed to in writing, software
+    #    distributed under the License is distributed on an "AS IS" BASIS,
+    #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    #    See the License for the specific language governing permissions and
+    #    limitations under the License.
+    template-path:
+
+  goimports:
+    local-prefixes: github.com/uclatall/ckhub
+
+  golint:
+    min-confidency: 0
+
+  gomnd:
+    checks:
+      - argument
+      - case
+      - condition
+      - operation
+      - return
+      - assign
+    # List of numbers to exclude from analysis.
+    ignored-numbers:
+      - "0666"
+      - "0755"
+      - "42"
+    # List of file patterns to exclude from analysis.
+    ignored-files: []
+    # List of function patterns to exclude from analysis.
+    ignored-functions: []
+
+  gomoddirectives:
+    replace-local: false
+    replace-allow-list: []
+    retract-allow-no-explanation: false
+    exclude-forbidden: false
+
+  gomodguard:
+    allowed:
+      modules: [] # - gopkg.in/yaml.v2
+      domains: [] # - golang.org
+    blocked:
+      modules: []
+      # - github.com/uudashr/go-module:
+      #     recommendations:
+      #       - golang.org/x/mod
+      #     reason: "`mod` is the official go.mod parser library."
+      versions: []
+      # - github.com/mitchellh/go-homedir:
+      #     version: "< 1.1.0"
+      #     reason: "testing if blocked version constraint works."
+
+  gosec:
+    # To select a subset of rules to run.
+    # Available rules: https://github.com/securego/gosec#available-rules
+    includes: []
+    # To specify a set of rules to explicitly exclude.
+    # Available rules: https://github.com/securego/gosec#available-rules
+    excludes: []
+    # Exclude generated files
+    exclude-generated: true
+    # Filter out the issues with a lower severity than the given value.
+    # Valid options are: low, medium, high.
+    severity: medium
+    # Filter out the issues with a lower confidence than the given value.
+    # Valid options are: low, medium, high.
+    # Default: low
+    confidence: medium
+
+  gosimple:
+    # Select the Go version to target.
+    go: "1.15"
+    checks: ["all"]
+
+  govet:
+    check-shadowing: true
+    settings: {} # settings per analyzer
+    enable-all: false
+    enable:
+      - assign # check for useless assignments
+      - atomic # check for common mistakes using the sync/atomic package
+      - bools # check for common mistakes involving boolean operators
+      - buildtag # check that +build tags are well-formed and correctly located
+      - composites # check for unkeyed composite literals
+      - copylocks # check for locks erroneously passed by value
+      - errorsas # report passing non-pointer or non-error values to errors.As
+      - loopclosure # check references to loop variables from within nested functions
+      - lostcancel # check cancel func returned by context.WithCancel is called
+      - nilfunc # check for useless comparisons between functions and nil
+      - printf # check consistency of Printf format strings and arguments
+      - shift # check for shifts that equal or exceed the width of the integer
+      - stdmethods # check signature of methods of well-known interfaces
+      - structtag # check that struct field tags conform to reflect.StructTag.Get
+      - tests # check for common mistaken usages of tests and examples
+      - unmarshal # report passing non-pointer or non-interface values to unmarshal
+      - unreachable # check for unreachable code
+      - unsafeptr # check for invalid conversions of uintptr to unsafe.Pointer
+      - unusedresult # check for unused results of calls to some functions
+    disable-all: false
+    disable:
+      - asmdecl # report mismatches between assembly files and Go declarations
+      - cgocall # detect some violations of the cgo pointer passing rules
+      - httpresponse # check for mistakes using HTTP responses
+
+  grouper:
+    const-require-single-const: false
+    const-require-grouping: false
+    import-require-single-import: false
+    import-require-grouping: false
+    type-require-single-type: false
+    type-require-grouping: false
+    var-require-single-var: false
+    var-require-grouping: false
+
+  ifshort:
+    # Maximum length of variable declaration measured in number of lines, after
+    # which linter won't suggest using short syntax.
+    # Has higher priority than max-decl-chars.
+    max-decl-lines: 1
+    # Maximum length of variable declaration measured in number of characters,
+    # after which linter won't suggest using short syntax.
+    max-decl-chars: 10
+
+  importas:
+    # Do not allow unaliased imports of aliased packages.
+    no-unaliased: true
+    # Do not allow non-required aliases.
+    no-extra-aliases: false
+    # List of aliases
+    alias: []
+
+  ireturn:
+    allow:
+      - anon # anonymous interfaces
+      - error # errors
+      - empty # interface{}
+      - stdlib # standard library
+    reject: []
+
+  lll:
+    line-height: 120
+    tab-width: 2
+
+  maintidx:
+    under: 20
+
+  makezero:
+    always: false
+
+  misspell:
+    locale: US
+    ignore-words: []
+
+  nakedret:
+    max-func-lines: 10
+
+  nestif:
+    min-complexity: 3
+
+  nilnil:
+    checked-types:
+      - ptr
+      - func
+      - iface
+      - map
+      - chan
+
+  nolintlint:
+    allow-unused: false
+    allow-leading-space: false
+    allow-no-explanation: []
+    require-explanation: true
+    require-specific: true
+
+  prealloc:
+    simple: true # loops that have no returns/breaks/continues/gotos
+    range-loops: true # preallocation suggestions on range loops
+    for-loops: true # preallocation suggestions on for loops
+
+  predeclared:
+    ignore: ""
+    # include method names and field names (i.e., qualified names) in checks
+    q: false
+
+  promlinter:
+    strict: false
+    disabled-linters: []
+    #  - "Help"
+    #  - "MetricUnits"
+    #  - "Counter"
+    #  - "HistogramSummaryReserved"
+    #  - "MetricTypeInName"
+    #  - "ReservedChars"
+    #  - "CamelCase"
+    #  - "lintUnitAbbreviations"
+
+  revive:
+    ignore-generated-header: true
+    severity: warning
+    rules:
+      # Suggests using constant for magic numbers and string literals
+      # - name: add-constant
+      # Specifies the maximum number of arguments a function can receive
+      # - name: argument-limit
+      # Check for common mistaken usages of the sync/atomic package
+      - name: atomic
+      # Warns on bare returns
+      # - name: bare-return
+      # Disallows blank imports
+      #- name: blank-imports
+      # Suggests removing Boolean literals from logic expressions
+      - name: bool-literal-in-expr
+      # Warns on explicit call to the garbage collector
+      - name: call-to-gc
+      # Sets restriction for maximum Cognitive complexity.
+      # - name: cognitive-complexity
+      # Warns on methods with names that differ only by capitalization
+      # - name: confusing-naming
+      # Suggests to name potentially confusing function results
+      - name: confusing-results
+      # Warns on constant logical expressions
+      - name: constant-logical-expr
+      # context.Context should be the first argument of a function.
+      - name: context-as-argument
+      # Disallows the usage of basic types in context.WithValue.
+      - name: context-keys-type
+      # Sets restriction for maximum Cyclomatic complexity.
+      # - name: cyclomatic
+      # Looks for program exits in funcs other than main() or init()
+      - name: deep-exit
+      # Warns on some defer gotchas
+      - name: defer
+        arguments:
+          - ["call-chain", "loop", "method-call", "recover", "return"]
+      # Forbids . imports.
+      - name: dot-imports
+      # Looks for packages that are imported two or more times
+      - name: duplicated-imports
+      # Spots if-then-else statements that can be refactored to simplify code reading
+      - name: early-return
+      # Warns on empty code blocks
+      - name: empty-block
+      # Warns when there are heading or trailing newlines in a block
+      # - name: empty-lines
+      # Naming of error variables.
+      - name: error-naming
+      # The error return parameter should be last.
+      - name: error-return
+      # Conventions around error strings.
+      - name: error-strings
+      # Should replace errors.New(fmt.Sprintf()) with fmt.Errorf()
+      - name: errorf
+      # Naming and commenting conventions on exported symbols.
+      - name: exported
+      # Header which each file should have.
+      # - name: file-header
+      # Warns on boolean parameters that create a control coupling
+      # - name: flag-parameter
+      # Warns on functions exceeding the statements or lines max
+      # - name: function-length
+      # Specifies the maximum number of results a function can return
+      # - name: function-result-limit
+      # Warns on getters that do not yield any result
+      - name: get-return
+      # Spots if-then-else statements with identical then and else branches
+      - name: identical-branches
+      # Redundant if when returning an error.
+      - name: if-return
+      # Spots identifiers that shadow an import
+      - name: import-shadowing
+      # Disallows importing the specified packages
+      - name: imports-blacklist
+      # Use i++ and i-- name: instead of i += 1 and i -= 1.
+      - name: increment-decrement
+      # Prevents redundant else statements.
+      - name: indent-error-flow
+      # Specifies the maximum number of characters in a line
+      # - name: line-length-limit
+      # The maximum number of public structs in a file.
+      # - name: max-public-structs
+      # Warns on assignments to function parameters
+      # - name: modifies-parameter
+      # Warns on assignments to value-passed method receivers
+      # - name: modifies-value-receiver
+      # Package commenting conventions.
+      # - name: package-comments
+      # Prevents redundant variables when iterating over a collection.
+      - name: range
+      # Warns if address of range value is used dangerously
+      - name: range-val-address
+      # Warns if range value is used in a closure dispatched as goroutine
+      - name: range-val-in-closure
+      # Conventions around the naming of receivers.
+      # - name: receiver-naming
+      # Warns on redefinitions of builtin identifiers
+      - name: redefines-builtin-id
+      # Warns on specific string literals that fail one or more user-configured regular expressions
+      # - name: string-format
+      # Warns on suspicious casts from int to string
+      - name: string-of-int
+      # Checks common struct tags like json,xml,yaml
+      # - name: struct-tag
+      # Prevents redundant else statements (extends indent-error-flow)
+      - name: superfluous-else
+      # Suggests to use time.Time.Equal instead of == and != for equality check time.
+      # - name: time-equal
+      # Conventions around the naming of time variables.
+      - name: time-naming
+      # Warns on function calls that will lead to (direct) infinite recursion
+      - name: unconditional-recursion
+      # Warns on wrongly named un-exported symbols
+      - name: unexported-naming
+      # Warns when a public return is from unexported type.
+      - name: unexported-return
+      # Warns on unhandled errors returned by funcion calls
+      # - name: unhandled-error
+      # Suggests removing or simplifying unnecessary statements
+      - name: unnecessary-stmt
+      # Warns on unreachable code
+      - name: unreachable-code
+      # Suggests to rename or remove unused function parameters
+      - name: unused-parameter
+      # Suggests to rename or remove unused method receivers
+      - name: unused-receiver
+      # Warns on useless break statements in case clauses.
+      - name: useless-break
+      # Reduces redundancies around variable declaration.
+      - name: var-declaration
+      # Naming rules.
+      - name: var-naming
+      # Warns on functions taking sync.WaitGroup as a by-value parameter
+      - name: waitgroup-by-value
+
+  rowserrcheck:
+    packages: []
+
+  staticcheck:
+    # Select the Go version to target.
+    go: "1.15"
+    # https://staticcheck.io/docs/options#checks
+    checks: ["all"]
+
+  stylecheck:
+    # Select the Go version to target.
+    # Default: 1.13
+    go: "1.15"
+    # https://staticcheck.io/docs/options#checks
+    checks: ["all"]
+    # https://staticcheck.io/docs/options#dot_import_whitelist
+    dot-import-whitelist:
+      - fmt
+    # https://staticcheck.io/docs/options#initialisms
+    initialisms:
+      [
+        "ACL",
+        "API",
+        "ASCII",
+        "CPU",
+        "CSS",
+        "DNS",
+        "EOF",
+        "GUID",
+        "HTML",
+        "HTTP",
+        "HTTPS",
+        "ID",
+        "IP",
+        "JSON",
+        "QPS",
+        "RAM",
+        "RPC",
+        "SLA",
+        "SMTP",
+        "SQL",
+        "SSH",
+        "TCP",
+        "TLS",
+        "TTL",
+        "UDP",
+        "UI",
+        "GID",
+        "UID",
+        "UUID",
+        "URI",
+        "URL",
+        "UTF8",
+        "VM",
+        "XML",
+        "XMPP",
+        "XSRF",
+        "XSS",
+      ]
+    # https://staticcheck.io/docs/options#http_status_code_whitelist
+    http-status-code-whitelist: ["200", "400", "404", "500"]
+
+  tagliatelle:
+    case:
+      use-field-name: true
+      rules:
+        # camel, pascal, kebab, snake, goCamel, goPascal, goKebab, goSnake, upper, lower
+        json: camel
+        yaml: camel
+        #xml: camel
+        bson: camel
+        avro: snake
+        mapstructure: kebab
+
+  tenv:
+    all: false
+
+  testpackage:
+    skip-regexp: ""
+
+  thelper:
+    test:
+      first: true
+      name: true
+      begin: true
+    benchmark:
+      first: true
+      name: true
+      begin: true
+
+  unparam:
+    check-exported: false
+
+  unused:
+    check-exported: false
+
+  varcheck:
+    # Check usage of exported fields and variables.
+    exported-fields: false
+
+  varnamelen:
+    # The longest distance, in source lines, that is being considered a "small scope." (defaults to 5)
+    # Variables used in at most this many lines will be ignored.
+    max-distance: 5
+    # The minimum length of a variable's name that is considered "long." (defaults to 3)
+    # Variable names that are at least this long will be ignored.
+    min-name-length: 3
+    # Check method receiver names. (defaults to false)
+    check-receiver: false
+    # Check named return values. (defaults to false)
+    check-return: false
+    # Ignore "ok" variables that hold the bool return value of a type assertion. (defaults to false)
+    ignore-type-assert-ok: true
+    # Ignore "ok" variables that hold the bool return value of a map index. (defaults to false)
+    ignore-map-index-ok: true
+    # Ignore "ok" variables that hold the bool return value of a channel receive. (defaults to false)
+    ignore-chan-recv-ok: true
+    # Optional list of variable names that should be ignored completely. (defaults to empty list)
+    ignore-names:
+      - err
+    # Optional list of variable declarations that should be ignored completely. (defaults to empty list)
+    # Entries must be in the form of "<variable name> <type>" or "<variable name> *<type>" for
+    # variables, or "const <name>" for constants.
+    ignore-decls:
+      []
+      # - c echo.Context
+      # - t testing.T
+      # - f *foo.Bar
+      # - e error
+      # - i int
+      # - const C
+
+  whitespace:
+    multi-if: true
+    multi-func: true
+
+  wrapcheck:
+    # An array of strings that specify substrings of signatures to ignore.
+    # If this set, it will override the default set of ignored signatures.
+    ignoreSigs: []
+    # - .Errorf(
+    ignoreSigRegexps: []
+    ignorePackageGlobs:
+      - go.uber.org/multierr
+
+  wsl:
+    strict-append: true
+    allow-assign-and-call: true
+    allow-multiline-assign: true
+    allow-trailing-comment: false
+    force-case-trailing-whitespace: 0

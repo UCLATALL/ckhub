@@ -1,0 +1,109 @@
+apiVersion: {{ include "kubernetes.deployment.version" . }}
+kind: Deployment
+metadata:
+  name: {{ include "ckhub.deployment" . | quote }}
+  labels:
+    {{- include "ckhub.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.ckhub.replicas | int }}
+  selector:
+    matchLabels:
+      {{- include "ckhub.deployment.selector" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        {{- include "ckhub.deployment.labels" . | nindent 8 }}
+      annotations:
+      {{- with deepCopy .Values.annotations | merge (default dict .Values.ckhub.annotations) }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      affinity:
+      {{- if .Values.ckhub.affinity }}
+        {{- toYaml .Values.ckhub.affinity | nindent 8 }}
+      {{- else }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    {{- include "ckhub.deployment.selector" . | nindent 20 }}
+      {{- end }}
+      containers:
+        - name: ckhub
+          image: {{ include "ckhub.image" . | quote }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.image.pullPolicy | quote }}
+          command:
+            - ckhub
+            - server
+            - --config=/etc/ckhub/server.yml
+          ports:
+            - name: http
+              containerPort: {{ .Values.ckhub.ports.http | int }}
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.ckhub.ports.http | int }}
+            initialDelaySeconds: {{ .Values.ckhub.livenessProbe.initialDelaySeconds | int }}
+            timeoutSeconds: {{ .Values.ckhub.livenessProbe.timeoutSeconds | int }}
+            periodSeconds: {{ .Values.ckhub.livenessProbe.periodSeconds | int }}
+            failureThreshold: {{ .Values.ckhub.livenessProbe.failureThreshold | int }}
+            successThreshold: {{ .Values.ckhub.livenessProbe.successThreshold | int }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.ckhub.ports.http | int }}
+            initialDelaySeconds: {{ .Values.ckhub.readinessProbe.initialDelaySeconds | int }}
+            timeoutSeconds: {{ .Values.ckhub.readinessProbe.timeoutSeconds | int }}
+            periodSeconds: {{ .Values.ckhub.readinessProbe.periodSeconds | int }}
+            failureThreshold: {{ .Values.ckhub.readinessProbe.failureThreshold | int }}
+            successThreshold: {{ .Values.ckhub.readinessProbe.successThreshold | int }}
+          {{- with .Values.ckhub.resources }}
+          resources:
+            {{- include "resources" . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /etc/ckhub
+              name: config
+              readOnly: true
+      {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ include "ckhub.image.pullsecret" . | quote }}
+      {{- end }}
+      {{- with .Values.ckhub.nodeSelector }}
+      nodeSelector:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ckhub.priority }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      {{- with .Values.ckhub.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ckhub.serviceAccount }}
+      serviceAccountName: {{ include "ckhub.serviceaccount" . | quote }}
+      {{- end }}
+      terminationGracePeriodSeconds: 30
+      {{- with .Values.ckhub.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ckhub.topology }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "ckhub.name" . | quote }}

@@ -1,0 +1,13 @@
+{
+  "name": "golang",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "ckhub",
+  "workspaceFolder": "/usr/src/ckhub",
+  "extensions": [
+    "golang.go",
+    "humao.rest-client",
+    "ms-azuretools.vscode-docker",
+    "redhat.vscode-yaml",
+    "vivaxy.vscode-conventional-commits"
+  ]
+}

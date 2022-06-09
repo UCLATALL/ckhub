@@ -1,0 +1,8 @@
+.DS_Store
+
+/.idea
+
+/.helm/charts
+
+/target
+/vendor

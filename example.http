@@ -1,0 +1,8 @@
+POST http://localhost:8080/v1/execute/ir
+
+print("Hello CKHub!", quote = FALSE)
+
+###
+
+GET http://jupyter:8888/api/kernels
+Authorization: token ckhub

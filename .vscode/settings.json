@@ -1,0 +1,59 @@
+{
+  ////////////////////////////////////////////////////////////////////////////
+  // Conventional commits
+  ////////////////////////////////////////////////////////////////////////////
+  "conventionalCommits.scopes": [
+    "docker",
+    "gateway",
+    "helm",
+    "helpers",
+    "jupyter",
+    "logger",
+    "play",
+    "runtime",
+    "server",
+    "vscode"
+  ],
+  ////////////////////////////////////////////////////////////////////////////
+  // Editor
+  ////////////////////////////////////////////////////////////////////////////
+  "[go]": {
+    "editor.insertSpaces": false,
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    "editor.snippetSuggestions": "top",
+  },
+  "[go.mod]": {
+    "editor.formatOnSave": true,
+  },
+  "[go.sum]": {
+    "editor.formatOnSave": true,
+  },
+  "[go.work]": {
+    "editor.formatOnSave": true,
+  },
+  ////////////////////////////////////////////////////////////////////////////
+  // Golang
+  ////////////////////////////////////////////////////////////////////////////
+  "go.buildOnSave": "off",
+  "go.gotoSymbol.includeGoroot": true,
+  "go.gotoSymbol.includeImports": true,
+  "go.lintOnSave": "package",
+  "go.lintTool": "golangci-lint",
+  "go.testFlags": [
+    "-v"
+  ],
+  "go.useCodeSnippetsOnFunctionSuggest": false,
+  "go.useCodeSnippetsOnFunctionSuggestWithoutType": false,
+  ////////////////////////////////////////////////////////////////////////////
+  // Golang language server
+  ////////////////////////////////////////////////////////////////////////////
+  "gopls": {
+    "build.directoryFilters": [
+      "-target",
+    ],
+    "formatting.local": "github.com/uclatall/ckhub",
+  },
+}

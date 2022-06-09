@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  ckhub:
+    build:
+      context: ckhub
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - ./ckhub/config:/etc/ckhub
+      - ..:/usr/src/ckhub
+      - ~/.gnupg:/root/.gnupg
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  jupyter:
+    build:
+      context: jupyter
+      dockerfile: Dockerfile
+    entrypoint:
+      - jupyter
+      - lab
+      - --allow-root
+      - --no-browser
+      - --ip=0.0.0.0
+      - --port=8888
+      - --NotebookApp.token='ckhub'
+      - --notebook-dir=/var/run/jupyter
+    ports:
+      - 8888:8888
+    volumes:
+      - jupyter:/var/run/jupyter
+
+volumes:
+  jupyter:

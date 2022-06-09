@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "exiasr.hadolint",
+    "golang.go",
+    "humao.rest-client",
+    "ms-azuretools.vscode-docker",
+    "redhat.vscode-yaml",
+    "timonwong.shellcheck",
+    "vivaxy.vscode-conventional-commits"
+  ]
+}

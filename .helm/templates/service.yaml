@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ckhub.service" . | quote }}
+  labels:
+    {{- include "ckhub.labels" . | nindent 4 }}
+    {{- with .Values.ckhub.service.labels -}}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with deepCopy .Values.annotations | merge (default dict .Values.ckhub.service.annotations) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.ckhub.ports.http | int }}
+      protocol: TCP
+      targetPort: {{ .Values.ckhub.ports.http | int }}
+  selector:
+    {{- include "ckhub.deployment.selector" . | nindent 4 }}
+  type: ClusterIP

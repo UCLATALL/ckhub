@@ -1,0 +1,25 @@
+# Server configuration.
+server:
+  # Address to listen for incoming HTTP requests.
+  http: ":8080"
+
+# Configuration of the sandbox environment.
+sandbox:
+  # Configuration of the jupyter kernels.
+  kernels:
+    # - name: "ipy"
+    #   init: |-
+    #     print("Hello, ckhub!")
+    #   jupyter:
+    #     token: ckhub
+    #     url: http://jupyter:8888
+    #   kernel: "python3"
+    #   limit: 5
+    - name: "ir"
+      init: |-
+        print("Hello, ckhub!")
+      jupyter:
+        token: ckhub
+        url: http://jupyter:8888
+      kernel: "ir"
+      limit: 5

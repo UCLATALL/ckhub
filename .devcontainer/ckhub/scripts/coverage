@@ -1,0 +1,107 @@
+#!/usr/bin/env sh
+# shellcheck shell=dash
+
+SELF="${0##*/}"
+PROFILE=""
+IGNORE=""
+VERBOSE=""
+MODULE="$(go list -m 2>/dev/null)"
+
+usage() {
+  [ -n "$1" ] && printf "$@"
+  echo "Usage: $SELF [OPTIONS] PROFILE"
+  echo
+  echo "Display overall test coverage using the given coverage profile."
+  echo "Profile should be generated with the following command:"
+  echo
+  echo "     go test -coverprofile PROFILE -coverpkg ./... -covermode atomic ./..."
+  echo
+  echo "Options:"
+  echo "     -i, --ignore <path>   Ignore specified files."
+  echo "     -m, --module <name>   Go module name."
+  echo "     -v, --verbose         Display affected functions."
+}
+
+ignore() {
+  for mask in $IGNORE; do
+    case $1 in "$mask")
+      return 0
+    esac
+  done
+  if grep -q '// Code generated .* DO NOT EDIT\.$' "$1"; then
+    [ -n "$IGNORE" ] && IGNORE="$IGNORE "
+    IGNORE="${IGNORE}$1"
+    return 0
+  fi
+  return 1
+}
+
+cover() {
+  local count=0
+  local total=0
+  while IFS= read -r line; do
+    source="$(echo "$line" | cut -d':' -f1)"
+    case $source in "$MODULE/"*)
+      source=${source#"$MODULE/"}
+      func=$(echo "$line" | awk '{print $2}')
+      coverage=$(echo "$line" | awk '{print $3}')
+      if ! ignore "$source"; then
+        count=$(( count+1 ))
+        total=$(echo "scale=2;$total+${coverage%'%'}" | bc)
+        [ -n "$VERBOSE" ] && printf "%s\t%s\t%s\n" "$source" "$func" "$coverage"
+      fi
+    esac
+  done
+
+  if [ $count -gt 0 ]; then
+    echo "Coverage: $(echo "scale=2;$total/$count" | bc)%"
+  else
+    echo "Coverage: 0.0%"
+  fi
+}
+
+while [ "$#" != "0" ]; do
+  case $1 in
+    -i|--ignore)
+      [ -n "$IGNORE" ] && IGNORE="$IGNORE "
+      IGNORE="$IGNORE$2"
+      shift 2
+      ;;
+    -m|--module)
+      MODULE="$2"
+      shift 2
+      ;;
+    -v|--verbose)
+      VERBOSE="1"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -*)
+      usage "Error: invalid option %s.\n\n" "$1" >&2
+      exit 1
+      ;;
+    *)
+      if [ -n "$PROFILE" ]; then
+        usage "Error: too many profiles.\n\n" >&2
+        exit 1
+      fi
+      PROFILE="$1"
+      shift
+      ;;
+  esac
+done
+
+if [ -z "$PROFILE" ]; then
+  usage "Error: missing coverage profile.\n\n" >&2
+  exit 1
+fi
+
+if [ -z "$MODULE" ]; then
+  usage "Error: go module not found.\n\n" >&2
+  exit 1
+fi
+
+go tool cover -func "$PROFILE" | cover

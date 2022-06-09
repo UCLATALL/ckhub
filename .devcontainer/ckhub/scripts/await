@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# shellcheck shell=dash
+
+trap 'kill -TERM $PID' TERM INT
+sleep infinity&
+PID=$!
+wait $PID
+trap - TERM INT
