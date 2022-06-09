@@ -81,9 +81,9 @@ ckhub:
 # Container image parameters.
 image:
   # Address of the container registry.
-  registry: cr.yandex # docker.io
+  registry: docker.io
   # Repository of the image.
-  repository: crprvs0hd2l9585gf4s7/ckhub # uclatall/ckhub
+  repository: uclatall/ckhub
   # Tag of the image, defaults to chart application version.
   tag: ""
   # Image pull policy.
