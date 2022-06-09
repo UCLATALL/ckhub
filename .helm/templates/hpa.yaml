@@ -18,11 +18,11 @@ spec:
       resource:
         name: cpu
         {{- if semverCompare "<1.23-0" .Capabilities.KubeVersion.Version }}
-        targetAverageUtilization: {{ .Values.ckhub.autoscaling.cpu | quote }}
+        targetAverageUtilization: {{ .Values.ckhub.autoscaling.cpu | int }}
         {{- else }}
         target:
           type: Utilization
-          averageUtilization: {{ .Values.ckhub.autoscaling.cpu | quote }}
+          averageUtilization: {{ .Values.ckhub.autoscaling.cpu | int }}
         {{- end }}
   {{- end }}
   {{- if .Values.ckhub.autoscaling.memory }}
@@ -30,14 +30,15 @@ spec:
       resource:
         name: memory
         {{- if semverCompare "<1.23-0" .Capabilities.KubeVersion.Version }}
-        targetAverageUtilization: {{ .Values.ckhub.autoscaling.memory | quote }}
+        targetAverageUtilization: {{ .Values.ckhub.autoscaling.memory | int }}
         {{- else }}
         target:
           type: Utilization
-          averageUtilization: {{ .Values.ckhub.autoscaling.memory | quote }}
+          averageUtilization: {{ .Values.ckhub.autoscaling.memory | int }}
         {{- end }}
   {{- end }}
   scaleTargetRef:
     apiVersion: {{ include "kubernetes.deployment.version" . }}
     kind: Deployment
+    name: {{ include "ckhub.deployment" . | quote }}
 {{- end }}
