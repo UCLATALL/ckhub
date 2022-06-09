@@ -2,6 +2,7 @@ package jupyter
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 )
@@ -62,8 +63,7 @@ type MessageDisplayData struct {
 // MessageDisplayDataContent contains the structure
 // of the MsgTypeDisplayData message content.
 type MessageDisplayDataContent struct {
-	Meta any               `json:"metadata,omitempty"`
-	Data map[string][]byte `json:"data"`
+	Data map[string]json.RawMessage `json:"data"`
 }
 
 // GetMsgType returns header of the message
