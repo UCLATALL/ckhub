@@ -1,6 +1,8 @@
 POST http://localhost:8080/v1/execute/ir
 
-print("Hello CKHub!", quote = FALSE)
+library(supernova)
+print("Hello, CKHub!")
+supernova(lm(mpg ~ NULL, data = mtcars))
 
 ###
 
