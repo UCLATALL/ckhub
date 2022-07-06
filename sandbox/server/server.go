@@ -36,7 +36,8 @@ func NewServer(manager *sandbox.Manager, options ...Option) (*Server, error) {
 		mux:     chi.NewRouter(),
 	}
 
-	server.mux.Post("/v1/execute/{kernel}", server.Execute)
+	server.mux.Get("/healthz", server.HealthCheck)
+	server.mux.Post("/api/v1/execute/{kernel}", server.Execute)
 
 	errs := make([]error, len(options))
 	for i, option := range options {
@@ -136,6 +137,16 @@ func (srv *Server) Execute(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Error("failed to write response", logging.Error(err))
 	}
+}
+
+// HealthCheck returns a health check status of the service.
+func (srv *Server) HealthCheck(w http.ResponseWriter, req *http.Request) {
+	_ = req.Body.Close()
+	if req.URL.Query().Has("ready") && srv.manager.Kernels() == 0 {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func writeError(w http.ResponseWriter, status int, err error) {

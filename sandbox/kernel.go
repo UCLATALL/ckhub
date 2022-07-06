@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -99,17 +100,22 @@ func (k *Kernel) ExecuteSnippet(
 	kernel := k.instances[0]
 	k.instances = k.instances[1:]
 
+	go func() {
+		_ = k.SpawnInstance(context.Background())
+	}()
+
 	k.mu.Unlock()
 
 	result, err := executeCode(kernel, snippet.ID, snippet.Source)
+
+	go func() {
+		_ = k.client.RemoveKernel(context.Background(), kernel.ID)
+		atomic.AddInt64(&k.total, -1)
+	}()
+
 	if err != nil {
 		return nil, err
 	}
-
-	go func() {
-		_ = k.client.RemoveKernel(ctx, kernel.ID)
-		atomic.AddInt64(&k.total, -1)
-	}()
 
 	return result, nil
 }
@@ -131,6 +137,11 @@ func (k *Kernel) Destroy() error {
 		return err
 	}
 	return nil
+}
+
+// Instances returns the number of kernel instances.
+func (k *Kernel) Instances() int {
+	return int(atomic.LoadInt64(&k.total))
 }
 
 func executeCode(kernel *jupyter.Kernel, id uuid.UUID, code string) (*Result, error) {
@@ -161,6 +172,13 @@ loop:
 		switch msg := msg.(type) {
 		case *jupyter.MessageDisplayData:
 			for mime, content := range msg.Content.Data {
+				if strings.Split(mime, "/")[0] == "text" {
+					result.Events = append(result.Events, Event{
+						Kind:    EventKindOutput,
+						Message: string(content),
+					})
+					continue
+				}
 				result.Events = append(result.Events, Event{
 					Kind:    EventKindPayload,
 					Mime:    mime,

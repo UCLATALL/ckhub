@@ -90,3 +90,12 @@ func (m *Manager) ExecuteSnippet(ctx context.Context, snippet *Snippet) (*Result
 
 	return kernel.ExecuteSnippet(ctx, snippet)
 }
+
+// Kernels returns the number of available kernels.
+func (m *Manager) Kernels() int {
+	total := 0
+	for _, kernel := range m.kernels {
+		total += kernel.Instances()
+	}
+	return total
+}
