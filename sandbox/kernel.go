@@ -20,9 +20,9 @@ import (
 type Kernel struct {
 	client *jupyter.Client
 
-	name  string
-	init  string
-	limit int64
+	name     string
+	init     string
+	min, max int64
 
 	mu        sync.RWMutex
 	close     bool
@@ -35,46 +35,11 @@ var ErrKernelClosed = errors.New("kernel closed")
 
 // SpawnInstance creates a new instance of the kernel.
 func (k *Kernel) SpawnInstance(ctx context.Context) error {
-	if atomic.LoadInt64(&k.total) >= k.limit {
+	if atomic.LoadInt64(&k.total) >= k.min {
 		return nil
 	}
 
-	k.mu.RLock()
-	if k.close {
-		k.mu.RUnlock()
-		return ErrKernelClosed
-	}
-	k.mu.RUnlock()
-
-	atomic.AddInt64(&k.total, 1)
-
-	kernel, err := k.client.CreateKernel(ctx, k.name)
-	if err != nil {
-		atomic.AddInt64(&k.total, -1)
-		return fmt.Errorf("failed to create kernel: %w", err)
-	}
-
-	if k.init != "" {
-		_, err := executeCode(kernel, uuid.New(), k.init)
-		if err != nil {
-			_ = k.client.RemoveKernel(ctx, kernel)
-			atomic.AddInt64(&k.total, -1)
-			return fmt.Errorf("failed to init kernel: %w", err)
-		}
-	}
-
-	k.mu.Lock()
-	defer k.mu.Unlock()
-
-	if k.close {
-		_ = k.client.RemoveKernel(ctx, kernel)
-		atomic.AddInt64(&k.total, -1)
-		return ErrKernelClosed
-	}
-
-	k.instances = append(k.instances, kernel)
-
-	return nil
+	return k.createInstance(ctx)
 }
 
 // ErrTooManyRequests is returned when the kernel is at its limit.
@@ -100,9 +65,11 @@ func (k *Kernel) ExecuteSnippet(
 	kernel := k.instances[0]
 	k.instances = k.instances[1:]
 
-	go func() {
-		_ = k.SpawnInstance(context.Background())
-	}()
+	if atomic.LoadInt64(&k.total) < k.max {
+		go func() {
+			_ = k.createInstance(context.Background())
+		}()
+	}
 
 	k.mu.Unlock()
 
@@ -142,6 +109,49 @@ func (k *Kernel) Destroy() error {
 // Instances returns the number of kernel instances.
 func (k *Kernel) Instances() int {
 	return int(atomic.LoadInt64(&k.total))
+}
+
+func (k *Kernel) createInstance(ctx context.Context) error {
+	if atomic.LoadInt64(&k.total) >= k.max {
+		return nil
+	}
+
+	k.mu.RLock()
+	if k.close {
+		k.mu.RUnlock()
+		return ErrKernelClosed
+	}
+	k.mu.RUnlock()
+
+	atomic.AddInt64(&k.total, 1)
+
+	kernel, err := k.client.CreateKernel(ctx, k.name)
+	if err != nil {
+		atomic.AddInt64(&k.total, -1)
+		return fmt.Errorf("failed to create kernel: %w", err)
+	}
+
+	if k.init != "" {
+		_, err := executeCode(kernel, uuid.New(), k.init)
+		if err != nil {
+			_ = k.client.RemoveKernel(ctx, kernel)
+			atomic.AddInt64(&k.total, -1)
+			return fmt.Errorf("failed to init kernel: %w", err)
+		}
+	}
+
+	k.mu.Lock()
+	defer k.mu.Unlock()
+
+	if k.close {
+		_ = k.client.RemoveKernel(ctx, kernel)
+		atomic.AddInt64(&k.total, -1)
+		return ErrKernelClosed
+	}
+
+	k.instances = append(k.instances, kernel)
+
+	return nil
 }
 
 func executeCode(kernel *jupyter.Kernel, id uuid.UUID, code string) (*Result, error) {

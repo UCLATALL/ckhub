@@ -16,7 +16,8 @@ type Config struct {
 		Init    string         `json:"init,omitempty" yaml:"init,omitempty"`
 		Jupyter jupyter.Config `json:"jupyter" yaml:"jupyter"`
 		Kernel  string         `json:"kernel" yaml:"kernel"`
-		Limit   uint           `json:"limit" yaml:"limit"`
+		Min     uint           `json:"min" yaml:"min"`
+		Max     uint           `json:"max" yaml:"max"`
 	} `json:"kernels" yaml:"kernels"`
 }
 
@@ -44,7 +45,8 @@ func (cfg Config) Apply(manager *Manager) error {
 			client: client,
 			name:   config.Name,
 			init:   config.Init,
-			limit:  int64(config.Limit),
+			min:    int64(config.Min),
+			max:    int64(config.Max),
 		}
 	}
 
