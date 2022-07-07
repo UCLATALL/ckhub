@@ -57,7 +57,7 @@ func (k *Kernel) SpawnInstance(ctx context.Context) error {
 	if k.init != "" {
 		_, err := executeCode(kernel, uuid.New(), k.init)
 		if err != nil {
-			_ = k.client.RemoveKernel(ctx, kernel.ID)
+			_ = k.client.RemoveKernel(ctx, kernel)
 			atomic.AddInt64(&k.total, -1)
 			return fmt.Errorf("failed to init kernel: %w", err)
 		}
@@ -67,7 +67,7 @@ func (k *Kernel) SpawnInstance(ctx context.Context) error {
 	defer k.mu.Unlock()
 
 	if k.close {
-		_ = k.client.RemoveKernel(ctx, kernel.ID)
+		_ = k.client.RemoveKernel(ctx, kernel)
 		atomic.AddInt64(&k.total, -1)
 		return ErrKernelClosed
 	}
@@ -109,7 +109,7 @@ func (k *Kernel) ExecuteSnippet(
 	result, err := executeCode(kernel, snippet.ID, snippet.Source)
 
 	go func() {
-		_ = k.client.RemoveKernel(context.Background(), kernel.ID)
+		_ = k.client.RemoveKernel(context.Background(), kernel)
 		atomic.AddInt64(&k.total, -1)
 	}()
 
@@ -129,7 +129,7 @@ func (k *Kernel) Destroy() error {
 
 	errs := make([]error, len(k.instances))
 	for i, kernel := range k.instances {
-		errs[i] = k.client.RemoveKernel(context.Background(), kernel.ID)
+		errs[i] = k.client.RemoveKernel(context.Background(), kernel)
 	}
 
 	err := multierr.Combine(errs...)

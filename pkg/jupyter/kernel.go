@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
+	"net/url"
 	"sync"
 
 	"github.com/google/uuid"
@@ -14,6 +16,7 @@ import (
 type Kernel struct {
 	ID      uuid.UUID `json:"id"`
 	Name    string    `json:"name"`
+	Address net.Addr  `json:"-"`
 	ChanURL string    `json:"-"`
 
 	mu   sync.RWMutex
@@ -25,10 +28,26 @@ func (k *Kernel) Connect() error {
 	k.mu.Lock()
 	defer k.mu.Unlock()
 
-	conn, err := websocket.Dial(k.ChanURL, "", "http://localhost")
+	uri, err := url.Parse(k.ChanURL)
 	if err != nil {
 		return fmt.Errorf("failed to connect: %w", err)
 	}
+
+	hostname := uri.Hostname()
+	origin := fmt.Sprintf("%s://%s:%s", uri.Scheme, hostname, uri.Port())
+
+	uri.Host = k.Address.String()
+	config, err := websocket.NewConfig(uri.String(), origin)
+	if err != nil {
+		return fmt.Errorf("failed to connect: %w", err)
+	}
+	config.Header.Add("host", hostname)
+
+	conn, err := websocket.DialConfig(config)
+	if err != nil {
+		return fmt.Errorf("failed to connect: %w", err)
+	}
+
 	k.conn = conn
 
 	return nil

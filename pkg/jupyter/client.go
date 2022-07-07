@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/google/uuid"
 	"go.uber.org/multierr"
 )
 
@@ -51,6 +50,7 @@ func (client *Client) CreateKernel(ctx context.Context, name string) (*Kernel, e
 	var result Response[Kernel]
 
 	res, err := client.http.R().
+		EnableTrace().
 		SetContext(ctx).
 		SetAuthToken(client.token).
 		SetError(&result.Error).
@@ -65,6 +65,9 @@ func (client *Client) CreateKernel(ctx context.Context, name string) (*Kernel, e
 	}
 
 	kernel := &result.Result
+
+	kernel.Address = res.Request.TraceInfo().RemoteAddr
+
 	uri.Scheme = "ws"
 	if strings.EqualFold(uri.Scheme, "https") {
 		uri.Scheme = "wss"
@@ -80,15 +83,23 @@ func (client *Client) CreateKernel(ctx context.Context, name string) (*Kernel, e
 }
 
 // RemoveKernel removes the jupyter kernel with the given identifier.
-func (client *Client) RemoveKernel(ctx context.Context, id uuid.UUID) error {
+func (client *Client) RemoveKernel(ctx context.Context, kernel *Kernel) error {
 	var result Response[json.RawMessage]
 
-	res, err := client.http.R().
+	uri, err := url.Parse(client.http.BaseURL)
+	if err != nil {
+		return fmt.Errorf("invalid server url: %w", err)
+	}
+	hostname := uri.Hostname()
+	uri.Host = kernel.Address.String()
+
+	res, err := resty.New().SetBaseURL(uri.String()).SetAuthScheme("token").R().
 		SetContext(ctx).
 		SetAuthToken(client.token).
 		SetError(&result.Error).
+		SetHeader("host", hostname).
 		SetResult(&result.Result).
-		SetPathParam("id", id.String()).
+		SetPathParam("id", kernel.ID.String()).
 		Delete("/api/kernels/{id}")
 	if err != nil {
 		return fmt.Errorf("failed to process request: %w", err)
