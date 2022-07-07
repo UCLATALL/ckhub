@@ -12,7 +12,7 @@ GOFLAGS  ?= -trimpath
 LDFLAGS  ?= -X 'main.version=$(VERSION)' -extldflags -static
 PLATFORM ?= linux/amd64 linux/arm64
 TARGET   ?= $(patsubst cmd/%/main.go,%,$(wildcard cmd/*/main.go))
-IMAGE    ?= docker.io/uclatall/ckhub
+IMAGE    ?= us-central1-docker.pkg.dev/ckhub-proto1/ckhub/play
 
 OPENAPI_DIR := $(BUILD_DIR)/openapi
 REPORTS_DIR := $(BUILD_DIR)/reports
