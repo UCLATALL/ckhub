@@ -137,7 +137,8 @@ kernels:
   - name: "ir"
     init: "scripts/init.R"
     kernel: "ir"
-    limit: 15
+    min: 15
+    max: 300
 
 # Playground configuration.
 play:

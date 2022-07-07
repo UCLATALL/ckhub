@@ -1,1 +1,1 @@
-print("Hello, ckhub!")
+library(supernova)

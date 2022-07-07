@@ -28,5 +28,6 @@ data:
             url: "http://{{ include "jupyter.name" $ }}:{{ $.Values.jupyter.ports.http | int }}"
             token: ckhub
           kernel: {{ .kernel | quote }}
-          limit: {{ div .limit $.Values.play.replicas | int }}
+          min: {{ div .min $.Values.play.replicas | int }}
+          max: {{ div .max $.Values.play.replicas | int }}
         {{- end }}
