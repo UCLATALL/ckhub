@@ -46,12 +46,11 @@ spec:
       containers:
         - image: {{ include "play.image" . | quote }}
           imagePullPolicy: {{ .Values.play.image.pullPolicy | quote }}
-          name: cert-manager
+          name: ckhub
           command:
             - ckhub
             - server
             - --config=/etc/ckhub/server.yml
-          {{- if .Values.entrypoints }}
           livenessProbe:
             httpGet:
               path: /healthz
@@ -66,7 +65,6 @@ spec:
               path: /healthz?ready=1
               port: {{ .Values.play.ports.http | int }}
             {{- toYaml .Values.play.readinessProbe | nindent 12 }}
-          {{- end }}
           resources:
             {{- include "resources" .Values.play.resources | nindent 12 }}
           securityContext:

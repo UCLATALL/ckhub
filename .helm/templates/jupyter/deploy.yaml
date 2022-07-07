@@ -46,7 +46,7 @@ spec:
       containers:
         - image: {{ include "jupyter.image" . | quote }}
           imagePullPolicy: {{ .Values.jupyter.image.pullPolicy | quote }}
-          name: cert-manager
+          name: jupyter
           command:
             - jupyter
             - lab
@@ -55,7 +55,6 @@ spec:
             - --port={{ .Values.jupyter.ports.http | int }}
             - --NotebookApp.token=ckhub
             - --notebook-dir=/var/run/jupyter
-          {{- if .Values.entrypoints }}
           livenessProbe:
             tcpSocket:
               port: {{ .Values.jupyter.ports.http | int }}
@@ -68,7 +67,6 @@ spec:
             tcpSocket:
               port: {{ .Values.jupyter.ports.http | int }}
             {{- toYaml .Values.jupyter.readinessProbe | nindent 12 }}
-          {{- end }}
           resources:
             {{- include "resources" .Values.jupyter.resources | nindent 12 }}
           securityContext:
