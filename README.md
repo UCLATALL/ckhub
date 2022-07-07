@@ -5,36 +5,37 @@
 You need following tools:
 
 - Configured Kubernetes cluster
-- [Docker](https://docker.com)
 - [Helm](https://helm.sh/)
 - [Helmfile](https://github.com/helmfile/helmfile)
-- [Golang](https://go.dev/)
 
 Follow next steps to deploy ckhub to your cluster:
 
-1. Build container image.
+1. Clone repository.
 
 ```bash
-make docker
+git clone https://github.com/UCLATALL/ckhub.git
 ```
 
-2. Publish container image to your registry.
-
-```bash
-docker tag \
-us-central1-docker.pkg.dev/ckhub-proto1/ckhub/play:unknown-linux-amd64
-us-central1-docker.pkg.dev/ckhub-proto1/ckhub/play:latest
-```
-
-```bash
-docker push us-central1-docker.pkg.dev/ckhub-proto1/ckhub/play:latest
-```
-   
-3. Deploy Helm charts to Kubernetes.
+2. Deploy Helm charts to Kubernetes.
 
 ```bash
 helmfile sync
 ```
+
+## Jupyter Kernels
+
+The [Helm chart](./.helm) contains an [option](./.helm/values.yaml#L136) that
+allows configure the available Jupyter kernels.
+
+| Parameter | Description                                                 | Example                           |
+| --------- | ----------------------------------------------------------- | --------------------------------- |
+| name      | The external name of the kernel.                            | ir                                |
+| init      | Path to the bootstrap script, stored in the `.helm` folder. | [scripts/init.R](./.helm/scripts) |
+| kernel    | The internal name of the kernel (as it called in Jupyter).  | ir                                |
+| min       | The minimum number of the kernel replicas (clusterwide).    | 5                                 |
+| max       | The maximum number of the kernel replicas (clusterwide).    | 50                                |
+
+You can change kernels settings in the [helmfile.yaml](./helmfile.yaml#L64).
 
 ## Development
 
