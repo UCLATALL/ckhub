@@ -146,7 +146,7 @@ func (srv *Server) HealthCheck(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusOK)
 }
 
 func writeError(w http.ResponseWriter, status int, err error) {
