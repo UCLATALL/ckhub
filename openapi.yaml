@@ -1,0 +1,106 @@
+openapi: 3.0.1
+info:
+  title: Playground API
+  version: 1.0.0
+servers:
+  - url: "https://ckcode.uclatall.com/api"
+tags:
+  - name: Sandbox
+paths:
+  /v1/execute/{language}:
+    post:
+      summary: Execute code
+      description: Executes a code for the given language.
+      operationId: execute
+      tags:
+        - Sandbox
+      parameters:
+        - name: language
+          in: path
+          description: The language the code is written in.
+          required: true
+          schema:
+            type: string
+            enum:
+              - ir
+      requestBody:
+        description: The code to execute.
+        content:
+          "*/*":
+            schema:
+              type: string
+        required: false
+      responses:
+        200:
+          description: A result of the code execution.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/result"
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Internal server error.
+      x-codegen-request-body-name: code
+components:
+  schemas:
+    error:
+      title: Error represents a code execution error.
+      required:
+        - message
+      type: object
+      properties:
+        message:
+          type: string
+          description: An execution error message.
+          example: Invalid identifier.
+    event:
+      title: Event represents a code execution event.
+      required:
+        - kind
+        - message
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - error
+            - output
+            - payload
+          description: A kind of the event.
+          example: output
+        mime:
+          type: string
+          description: The mime type of the payload.
+          example: image/png
+        message:
+          type: string
+          description: An execution event message.
+          example: "[2] 1"
+    result:
+      title: Result represents a code execution result.
+      required:
+        - errors
+        - events
+        - status
+      type: object
+      properties:
+        errors:
+          minItems: 0
+          type: array
+          description: A list of code execution errors.
+          items:
+            $ref: "#/components/schemas/error"
+        events:
+          minItems: 0
+          type: array
+          description: A list of code execution events.
+          items:
+            $ref: "#/components/schemas/event"
+        status:
+          type: string
+          description: An execution status.
+          example: ok
