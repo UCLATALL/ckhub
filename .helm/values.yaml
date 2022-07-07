@@ -134,10 +134,15 @@ jupyter:
 
 # Configuration of the jupyter kernels.
 kernels:
-  - name: "ir"
+  - # Public name of the kernel (used in the URL).
+    name: "ir"
+    # Kernel bootstrap script.
     init: "scripts/init.R"
+    # Internal name of the kernel.
     kernel: "ir"
+    # The minimum number of running kernels.
     min: 15
+    # The maximum number of running kernels.
     max: 300
 
 # Playground configuration.
