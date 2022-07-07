@@ -40,11 +40,11 @@ jupyter:
     # Specifies whether the autoscaling should be enabled.
     enable: false
     # Target cpu utilization percentage.
-    cpu: 75
+    cpu: 80
     # Target memory utilization percentage.
-    memory: 75
+    memory: 80
     # The maximum number of deployment replicas.
-    maxReplicas: 5
+    maxReplicas: 10
     # The minimum number of deployment replicas.
     minReplicas: 1
   # Container image parameters.
@@ -99,8 +99,8 @@ jupyter:
   replicas: 1
   # The resources allocated for each replica, both requests and limits.
   resources:
-    cpu: 200m
-    memory: 256Mi
+    cpu: 500m
+    memory: 1024Mi
   # Parameters of the security context.
   security:
     allowPrivilegeEscalation: false
