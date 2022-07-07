@@ -1,22 +1,76 @@
 # Common annotations to add to all resources.
 annotations: {}
 
-# Playground configuration.
-ckhub:
+# Configuration of the ingress controller.
+ingress:
+  # Specifies whether a service account should be created.
+  create: false
+  # Additional annotations to add to the service account.
+  annotations: {}
+  # Class of the ingress controller to use.
+  class: ""
+  # The list of ingress hosts.
+  hosts: []
+  # Additional labels to add to the service account.
+  labels: {}
+  # Configuration of the ingress tls certificate.
+  tls:
+    # TLS provider type. Possible values: none, secret, cert-manager.
+    mode: none
+    # The name of the secret. This value is used only with secret TLS mode.
+    secret: ""
+    # Parameters of the TLS certificate. This value is used only with
+    # cert-manager TLS mode.
+    certificate:
+      # Additional annotations to add to the certificate.
+      annotations: {}
+      # The email address to use for the ACME solver.
+      email: "user@example.com"
+      # Additional labels to add to the certificate.
+      labels: {}
+
+# Configuration of the jupyter.
+jupyter:
   # Affinity configuration. If not set the default one will be used.
   affinity: {}
   # Additional annotations to add to the pods.
   annotations: {}
   # Paramerets of the horizontal pod autoscaling.
   autoscaling:
-    # # Target cpu utilization percentage.
-    # cpu: 75
-    # # Target memory utilization percentage.
-    # memory: 75
-    # # The maximum number of deployment replicas.
-    # maxReplicas: 10
-    # # The minimum number of deployment replicas.
-    # minReplicas: 2
+    # Specifies whether the autoscaling should be enabled.
+    enable: false
+    # Target cpu utilization percentage.
+    cpu: 75
+    # Target memory utilization percentage.
+    memory: 75
+    # The maximum number of deployment replicas.
+    maxReplicas: 5
+    # The minimum number of deployment replicas.
+    minReplicas: 1
+  # Container image parameters.
+  image:
+    # Address of the container registry.
+    registry: us-central1-docker.pkg.dev
+    # Repository of the image.
+    repository: ckhub-proto1/ckhub/jupyter
+    # Tag of the image, defaults to chart application version.
+    tag: ""
+    # Image pull policy.
+    pullPolicy: IfNotPresent
+    # Parameters of the image pull secret .
+    pullSecret: {}
+      # # Specifies whether a pull secret should be created.
+      # create: false
+      # # Name of the secret whose default is generated using the chart name.
+      # name: ""
+      # # Username to login to the container registry.
+      # username: ""
+      # # Password to login to the container registry.
+      # password: ""
+      # # Additional annotations to add to the pull secret.
+      # annotations: {}
+      # # Additional labels to add to the pull secret.
+      # labels: {}
   # Additional labels to add to the pods.
   labels: {}
   # Liveness probe configuration.
@@ -26,8 +80,6 @@ ckhub:
     periodSeconds: 5
     failureThreshold: 1
     successThreshold: 1
-  # Name of the deployment whose default is generated using the chart name.
-  name: ""
   # Node selector configuration to add to the pods.
   nodeSelector: {}
   # Configuration of the gateway ports.
@@ -44,80 +96,136 @@ ckhub:
     failureThreshold: 2
     successThreshold: 1
   # The initial number of deployment replicas.
-  replicas: 2
+  replicas: 1
   # The resources allocated for each replica, both requests and limits.
   resources:
-    cpu: 100m
+    cpu: 200m
     memory: 256Mi
   # Parameters of the security context.
-  securityContext:
-    fsGroup: 1000
+  security:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: []
+    fsGroup: 100
+    readOnlyRootFilesystem: false
     runAsNonRoot: true
     runAsUser: 1000
-    runAsGroup: 1000
-  # Service parameters.
-  service:
-    # Name of the service whose default is generated using the chart name.
-    name: ""
-    # Additional annotations to add to the service.
-    annotations: {}
-    # Additional labels to add to the service.
-    labels: {}
-  # Service account parameters.
-  serviceAccount:
+    runAsGroup: 100
+  # Parameters of the service account.
+  serviceAccount: {}
     # # Specifies whether a service account should be created.
     # create: false
-    # # Name of the service account whose default is generated using the chart name.
-    # name: ""
     # # Additional annotations to add to the service account.
     # annotations: {}
     # # Additional labels to add to the service account.
     # labels: {}
+    # # Name of the service account whose default is generated using the chart name.
+    # name: ""
+  # Service parameters.
+  service:
+    # Additional annotations to add to the service.
+    annotations: {}
+    # Additional labels to add to the service.
+    labels: {}
   # Tolerations to add to the pods.
   tolerations: []
   # Topology spread constraints to add to the pods.
   topology: {}
 
-# Container image parameters.
-image:
-  # Address of the container registry.
-  registry: docker.io
-  # Repository of the image.
-  repository: uclatall/ckhub
-  # Tag of the image, defaults to chart application version.
-  tag: ""
-  # Image pull policy.
-  pullPolicy: IfNotPresent
-  # Parameters of the image pull secret .
-  pullSecret:
-    # # Specifies whether a pull secret should be created.
-    # create: false
-    # # Name of the secret whose default is generated using the chart name.
-    # name: ""
-    # # Username to login to the container registry.
-    # username: ""
-    # # Password to login to the container registry.
-    # password: ""
-    # # Additional annotations to add to the pull secret.
-    # annotations: {}
-    # # Additional labels to add to the pull secret.
-    # labels: {}
+# Configuration of the jupyter kernels.
+kernels:
+  - name: "ir"
+    init: "scripts/init.R"
+    kernel: "ir"
+    limit: 15
 
-# Configuration of the sandbox environment.
-sandbox:
-  # Configuration of the jupyter kernels.
-  kernels:
-    - name: "ipy"
-      init: "scripts/init.py"
-      jupyter:
-        url: "http://jupyter:8888"
-        token: "ckhub"
-      kernel: "python3"
-      limit: 5
-    - name: "ir"
-      init: "scripts/init.R"
-      jupyter:
-        url: "http://jupyter:8888"
-        token: "ckhub"
-      kernel: "ir"
-      limit: 5
+# Playground configuration.
+play:
+  # Affinity configuration. If not set the default one will be used.
+  affinity: {}
+  # Additional annotations to add to the pods.
+  annotations: {}
+  # Container image parameters.
+  image:
+    # Address of the container registry.
+    registry: us-central1-docker.pkg.dev
+    # Repository of the image.
+    repository: ckhub-proto1/ckhub/play
+    # Tag of the image, defaults to chart application version.
+    tag: ""
+    # Image pull policy.
+    pullPolicy: IfNotPresent
+    # Parameters of the image pull secret .
+    pullSecret: {}
+      # # Specifies whether a pull secret should be created.
+      # create: false
+      # # Name of the secret whose default is generated using the chart name.
+      # name: ""
+      # # Username to login to the container registry.
+      # username: ""
+      # # Password to login to the container registry.
+      # password: ""
+      # # Additional annotations to add to the pull secret.
+      # annotations: {}
+      # # Additional labels to add to the pull secret.
+      # labels: {}
+  # Additional labels to add to the pods.
+  labels: {}
+  # Liveness probe configuration.
+  livenessProbe:
+    initialDelaySeconds: 30
+    timeoutSeconds: 1
+    periodSeconds: 5
+    failureThreshold: 1
+    successThreshold: 1
+  # Node selector configuration to add to the pods.
+  nodeSelector: {}
+  # Configuration of the gateway ports.
+  ports:
+    # Port to listen for incoming HTTP requests.
+    http: 8080
+  # Priority classname given to the pods.
+  priority: ""
+  # Readiness probe configuration.
+  readinessProbe:
+    initialDelaySeconds: 10
+    timeoutSeconds: 1
+    periodSeconds: 5
+    failureThreshold: 2
+    successThreshold: 1
+  # The initial number of deployment replicas.
+  replicas: 1
+  # The resources allocated for each replica, both requests and limits.
+  resources:
+    cpu: 100m
+    memory: 128Mi
+  # Parameters of the security context.
+  security:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ALL]
+    fsGroup: 1000
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+  # Service parameters.
+  service:
+    # Additional annotations to add to the service.
+    annotations: {}
+    # Additional labels to add to the service.
+    labels: {}
+  # Parameters of the service account.
+  serviceAccount: {}
+    # # Specifies whether a service account should be created.
+    # create: false
+    # # Additional annotations to add to the service account.
+    # annotations: {}
+    # # Additional labels to add to the service account.
+    # labels: {}
+    # # Name of the service account whose default is generated using the chart name.
+    # name: ""
+  # Tolerations to add to the pods.
+  tolerations: []
+  # Topology spread constraints to add to the pods.
+  topology: {}

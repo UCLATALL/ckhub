@@ -1,0 +1,15 @@
+{{- if and .Values.jupyter.serviceAccount .Values.jupyter.serviceAccount.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  {{- with deepCopy .Values.annotations | merge (default dict .Values.jupyter.serviceAccount.annotations) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "jupyter.labels" . | nindent 4 }}
+    {{- with .Values.jupyter.serviceAccount.labels -}}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  name: {{ include "jupyter.serviceAccount" . | quote }}
+{{- end }}

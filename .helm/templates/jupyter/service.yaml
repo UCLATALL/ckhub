@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  {{- with deepCopy .Values.annotations | merge (default dict .Values.jupyter.service.annotations) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    {{- with .Values.jupyter.service.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  name: {{ include "jupyter.name" . | quote }}
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.jupyter.ports.http | int }}
+      protocol: TCP
+      targetPort: {{ .Values.jupyter.ports.http | int }}
+  selector:
+    {{- include "jupyter.selector" . | nindent 4 }}
+  type: ClusterIP

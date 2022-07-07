@@ -1,31 +1,32 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "ckhub.name" . | quote }}
-  labels:
-    {{- include "ckhub.labels" . | nindent 4 }}
   {{- with .Values.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  labels:
+    {{- include "play.labels" . | nindent 4 }}
+  name: {{ include "play.name" . | quote }}
 data:
   server.yml: |-
     # Server configuration.
     server:
       # Address to listen for incoming HTTP requests.
-      http: ":{{ .Values.ckhub.ports.http | int }}"
+      http: ":{{ .Values.play.ports.http | int }}"
 
     # Configuration of the sandbox environment.
     sandbox:
       # Configuration of the jupyter kernels.
       kernels:
-        {{- $files := .Files }}
-        {{- range .Values.sandbox.kernels }}
+        {{- range .Values.kernels }}
         - name: {{ .name | quote }}
           {{- with .init }}
-          init: {{ $files.Get . | quote }}
+          init: {{ $.Files.Get . | quote }}
           {{- end }}
-          jupyter: {{- toYaml .jupyter | nindent 12 }}
+          jupyter:
+            url: "http://{{ include "jupyter.name" $ }}:{{ $.Values.jupyter.ports.http | int }}"
+            token: ckhub
           kernel: {{ .kernel | quote }}
-          limit: {{ default 5 .limit | int }}
+          limit: {{ div .limit $.Values.play.replicas | int }}
         {{- end }}

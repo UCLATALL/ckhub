@@ -1,16 +1,5 @@
-{{/* Returns generic labels of the chart. */}}
-{{- define "ckhub.labels" -}}
-app.kubernetes.io/name: {{ include "sanitize" .Chart.Name | quote }}
-app.kubernetes.io/instance: {{ include "ckhub.name" . | quote }}
-app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-helm.sh/chart: {{ printf "%s-%s" (include "sanitize" .Chart.Name) .Chart.Version }}
-{{- end -}}
-
 {{/* Returns the fully qualified name of the chart. */}}
-{{- define "ckhub.name" -}}
+{{- define "chart.name" -}}
 {{- $chart := include "sanitize" .Chart.Name -}}
 {{- $release := include "sanitize" .Release.Name -}}
 {{- if contains $chart $release -}}
@@ -20,65 +9,22 @@ helm.sh/chart: {{ printf "%s-%s" (include "sanitize" .Chart.Name) .Chart.Version
 {{- end -}}
 {{- end -}}
 
-{{/**************************************************************************/}}
-
-{{/* Returns the name of the deployment. */}}
-{{- define "ckhub.deployment" -}}
-{{- default (include "ckhub.name" .) .Values.ckhub.name -}}
-{{- end -}}
-
-{{/* Returns labels of the deployment. */}}
-{{- define "ckhub.deployment.labels" -}}
-{{- include "ckhub.labels" . }}
-app.kubernetes.io/component: "ckhub"
-{{- with .Values.ckhub.labels }}
-{{ toYaml . }}
-{{- end }}
-{{- end -}}
-
-{{/* Returns selector labels of the deployment. */}}
-{{- define "ckhub.deployment.selector" -}}
+{{/* Returns generic labels of the chart. */}}
+{{- define "chart.labels" -}}
 app.kubernetes.io/name: {{ include "sanitize" .Chart.Name | quote }}
-app.kubernetes.io/instance: {{ include "ckhub.name" . | quote }}
-app.kubernetes.io/component: "ckhub"
+app.kubernetes.io/instance: {{ include "chart.name" . | quote }}
+app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+helm.sh/chart: {{ printf "%s-%s" (include "sanitize" .Chart.Name) .Chart.Version }}
 {{- end -}}
 
-{{/**************************************************************************/}}
-
-{{/* Returns the fully qualified container image. */}}
-{{- define "ckhub.image" -}}
-{{- $tag := default .Chart.AppVersion .Values.image.tag -}}
-{{- printf "%s/%s:%s" .Values.image.registry .Values.image.repository $tag -}}
+{{/* Returns selector labels of the chart. */}}
+{{- define "chart.selector" -}}
+app.kubernetes.io/name: {{ include "sanitize" .Chart.Name | quote }}
+app.kubernetes.io/instance: {{ include "chart.name" . | quote }}
 {{- end -}}
-
-{{/* Returns encoded container registry credentials. */}}
-{{- define "ckhub.image.credentials" -}}
-{{- with .Values.image -}}
-{{- $auth := printf "%s:%s" .pullSecret.username .pullSecret.password | b64enc -}}
-{{- printf "{\"auths\": {\"%s\": {\"auth\": \"%s\"}}}" .registry $auth | b64enc -}}
-{{- end -}}
-{{- end -}}
-
-{{/* Returns the name of the image pull secret. */}}
-{{- define "ckhub.image.pullsecret" -}}
-{{- $name := include "sanitize" (cat (include "ckhub.name" .) "registry") -}}
-{{- default $name .Values.image.pullSecret.name -}}
-{{- end -}}
-
-{{/**************************************************************************/}}
-
-{{/* Returns the name of the ckhub service. */}}
-{{- define "ckhub.service" -}}
-{{- default (include "ckhub.name" .) .Values.ckhub.service.name -}}
-{{- end -}}
-
-{{/**************************************************************************/}}
-
-{{/* Returns the name of the service account. */}}
-{{- define "ckhub.serviceaccount" -}}
-{{- default (include "ckhub.name" .) .Values.ckhub.serviceAccount.name -}}
-{{- end -}}
-
 
 {{/**************************************************************************/}}
 

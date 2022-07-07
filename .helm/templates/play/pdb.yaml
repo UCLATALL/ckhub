@@ -1,0 +1,17 @@
+{{- if gt (int .Values.play.replicas) 1 -}}
+apiVersion: {{ include "kubernetes.pdb.version" . }}
+kind: PodDisruptionBudget
+metadata:
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "play.labels" . | nindent 4 }}
+  name: {{ include "play.name" . | quote }}
+spec:
+  minAvailable: {{ div .Values.play.replicas 2 | int }}
+  selector:
+    matchLabels:
+      {{- include "play.selector" . | nindent 6 }}
+{{- end }}

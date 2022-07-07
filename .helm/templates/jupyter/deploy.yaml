@@ -1,0 +1,113 @@
+apiVersion: {{ include "kubernetes.deployment.version" . }}
+kind: Deployment
+metadata:
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "jupyter.labels" . | nindent 4 }}
+  name: {{ include "jupyter.name" . | quote }}
+spec:
+  replicas: {{ .Values.jupyter.replicas | int }}
+  selector:
+    matchLabels:
+      {{- include "jupyter.selector" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      annotations:
+      {{- with deepCopy .Values.annotations | merge (default dict .Values.jupyter.annotations) }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "jupyter.labels" . | nindent 8 }}
+        {{- with .Values.jupyter.labels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      affinity:
+        {{- if .Values.jupyter.affinity }}
+          {{- toYaml .Values.jupyter.affinity | nindent 8 }}
+        {{- else }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    {{- include "jupyter.selector" . | nindent 20 }}
+        {{- end }}
+      containers:
+        - image: {{ include "jupyter.image" . | quote }}
+          imagePullPolicy: {{ .Values.jupyter.image.pullPolicy | quote }}
+          name: cert-manager
+          command:
+            - jupyter
+            - lab
+            - --no-browser
+            - --ip=0.0.0.0
+            - --port={{ .Values.jupyter.ports.http | int }}
+            - --NotebookApp.token=ckhub
+            - --notebook-dir=/var/run/jupyter
+          {{- if .Values.entrypoints }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.jupyter.ports.http | int }}
+            {{- toYaml .Values.jupyter.livenessProbe | nindent 12 }}
+          ports:
+            - containerPort: {{ .Values.jupyter.ports.http | int }}
+              name: http
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.jupyter.ports.http | int }}
+            {{- toYaml .Values.jupyter.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- include "resources" .Values.jupyter.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: {{ .Values.jupyter.security.allowPrivilegeEscalation }}
+            capabilities:
+              {{- toYaml .Values.jupyter.security.capabilities | nindent 14 }}
+            readOnlyRootFilesystem: {{ .Values.jupyter.security.readOnlyRootFilesystem }}
+            runAsNonRoot: {{ .Values.jupyter.security.runAsNonRoot }}
+          volumeMounts:
+            - name: notebooks
+              mountPath: /var/run/jupyter
+      {{- if .Values.jupyter.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ include "jupyter.pullSecret" . | quote }}
+      {{- end }}
+      {{- with .Values.jupyter.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.jupyter.priority }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      securityContext:
+        fsGroup: {{ .Values.jupyter.security.fsGroup }}
+        runAsNonRoot: {{ .Values.jupyter.security.runAsNonRoot }}
+        runAsUser: {{ .Values.jupyter.security.runAsUser }}
+        runAsGroup: {{ .Values.jupyter.security.runAsGroup }}
+      {{- if .Values.jupyter.serviceAccount }}
+      serviceAccountName: {{ include "jupyter.serviceAccount" . | quote }}
+      {{- end }}
+      terminationGracePeriodSeconds: 60
+      {{- with .Values.jupyter.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.jupyter.topology }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: notebooks
+          emptyDir: {}

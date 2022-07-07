@@ -1,0 +1,44 @@
+{{- if .Values.jupyter.autoscaling.enable }}
+apiVersion: {{ include "kubernetes.hpa.version" . }}
+kind: HorizontalPodAutoscaler
+metadata:
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "jupyter.labels" . | nindent 4 }}
+  name: {{ include "jupyter.name" . | quote }}
+spec:
+  maxReplicas: {{ .Values.jupyter.autoscaling.maxReplicas | int }}
+  minReplicas: {{ .Values.jupyter.autoscaling.minReplicas | int }}
+  metrics:
+    {{- if .Values.jupyter.autoscaling.cpu }}
+    - type: Resource
+      resource:
+        name: cpu
+        {{- if semverCompare "<1.23-0" .Capabilities.KubeVersion.Version }}
+        targetAverageUtilization: {{ .Values.jupyter.autoscaling.cpu | int }}
+        {{- else }}
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.jupyter.autoscaling.cpu | int }}
+        {{- end }}
+    {{- end }}
+    {{- if .Values.jupyter.autoscaling.memory }}
+    - type: Resource
+      resource:
+        name: memory
+        {{- if semverCompare "<1.23-0" .Capabilities.KubeVersion.Version }}
+        targetAverageUtilization: {{ .Values.jupyter.autoscaling.memory | int }}
+        {{- else }}
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.jupyter.autoscaling.memory | int }}
+        {{- end }}
+    {{- end }}
+  scaleTargetRef:
+    apiVersion: {{ include "kubernetes.deployment.version" . }}
+    kind: Deployment
+    name: {{ include "jupyter.name" . | quote }}
+{{- end }}

@@ -1,0 +1,23 @@
+{{- if and (eq .Values.ingress.tls.mode "cert-manager") .Values.ingress.create }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+  name: {{ include "chart.name" . | quote }}
+spec:
+  acme:
+    email: {{ .Values.ingress.tls.certificate.email | quote }}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: {{ include "sanitize" (cat (include "chart.name" .) "acme-key") | quote }}
+    solvers:
+      - http01:
+          ingress:
+            name: {{ include "chart.name" . | quote }}
+            serviceType: ClusterIP
+{{- end }}

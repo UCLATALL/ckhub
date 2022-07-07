@@ -1,0 +1,18 @@
+{{- if .Values.ingress.create }}
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+  name: {{ include "chart.name" . | quote }}
+spec:
+  healthCheck:
+    checkIntervalSec: 15
+    port: {{ $.Values.play.ports.http | int }}
+    type: HTTP
+    requestPath: /healthz
+{{- end }}

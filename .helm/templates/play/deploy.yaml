@@ -1,0 +1,117 @@
+apiVersion: {{ include "kubernetes.deployment.version" . }}
+kind: Deployment
+metadata:
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "play.labels" . | nindent 4 }}
+  name: {{ include "play.name" . | quote }}
+spec:
+  replicas: {{ .Values.play.replicas | int }}
+  selector:
+    matchLabels:
+      {{- include "play.selector" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      annotations:
+      {{- with deepCopy .Values.annotations | merge (default dict .Values.play.annotations) }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "play.labels" . | nindent 8 }}
+        {{- with .Values.play.labels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      affinity:
+        {{- if .Values.play.affinity }}
+          {{- toYaml .Values.play.affinity | nindent 8 }}
+        {{- else }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    {{- include "play.selector" . | nindent 20 }}
+        {{- end }}
+      containers:
+        - image: {{ include "play.image" . | quote }}
+          imagePullPolicy: {{ .Values.play.image.pullPolicy | quote }}
+          name: cert-manager
+          command:
+            - ckhub
+            - server
+            - --config=/etc/ckhub/server.yml
+          {{- if .Values.entrypoints }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.play.ports.http | int }}
+            {{- toYaml .Values.play.livenessProbe | nindent 12 }}
+          ports:
+            - containerPort: {{ .Values.play.ports.http | int }}
+              name: http
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz?ready=1
+              port: {{ .Values.play.ports.http | int }}
+            {{- toYaml .Values.play.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- include "resources" .Values.play.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: {{ .Values.play.security.allowPrivilegeEscalation }}
+            capabilities:
+              {{- toYaml .Values.play.security.capabilities | nindent 14 }}
+            readOnlyRootFilesystem: {{ .Values.play.security.readOnlyRootFilesystem }}
+            runAsNonRoot: {{ .Values.play.security.runAsNonRoot }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/ckhub
+              readOnly: true
+            - name: temp
+              mountPath: /tmp
+      {{- if .Values.play.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ include "play.pullSecret" . | quote }}
+      {{- end }}
+      {{- with .Values.play.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.play.priority }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      securityContext:
+        fsGroup: {{ .Values.play.security.fsGroup }}
+        runAsNonRoot: {{ .Values.play.security.runAsNonRoot }}
+        runAsUser: {{ .Values.play.security.runAsUser }}
+        runAsGroup: {{ .Values.play.security.runAsGroup }}
+      {{- if .Values.play.serviceAccount }}
+      serviceAccountName: {{ include "play.serviceAccount" . | quote }}
+      {{- end }}
+      terminationGracePeriodSeconds: 60
+      {{- with .Values.play.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.play.topology }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "play.name" . | quote }}
+        - name: temp
+          emptyDir: {}
