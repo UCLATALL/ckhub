@@ -1,0 +1,71 @@
+helmDefaults:
+  atomic: true
+  cleanupOnFail: true
+  wait: true
+
+repositories:
+  - name: jetstack
+    url: https://charts.jetstack.io
+
+releases:
+  - name: cert-manager
+    namespace: cert-manager
+    createNamespace: true
+    chart: jetstack/cert-manager
+    version: v1.8.2
+    values:
+      - installCRDs: true
+        replicaCount: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        cainjector:
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+        webhook:
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+  - name: ckhub
+    namespace: ckhub
+    createNamespace: true
+    chart: .helm
+    values:
+      - ingress:
+          create: true
+          annotations:
+            kubernetes.io/ingress.regional-static-ip-name: "ckhub-ip-june-30"
+          hosts:
+            - ckcode.uclatall.com
+          tls:
+            mode: cert-manager
+            certificate:
+              email: "adamblake@g.ucla.edu"
+        jupyter:
+          autoscaling:
+            enable: true
+          nodeSelector:
+            cloud.google.com/gke-nodepool: default-pool
+        kernels:
+          - name: "ir"
+            init: "scripts/init.R"
+            kernel: "ir"
+            min: 5
+            max: 20
+        play:
+          replicas: 2
