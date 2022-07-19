@@ -49,6 +49,13 @@ RUN mkdir -p /usr/share/doc/R/html; \
     Rscript -e "IRkernel::installspec(user=FALSE)"
 
 # hadolint ignore=DL3059
-RUN Rscript -e "install.packages('supernova',repos='$CRAN_URL',type='source')"
+RUN Rscript -e "install.packages(c( \
+    'cowplot', \
+    'extrafont', \
+    'ggplot2', \
+    'knitr', \
+    'rmarkdown', \
+    'supernova' \
+    ),repos='$CRAN_URL',type='source')"
 
 ENTRYPOINT [ "jupyter" ]
