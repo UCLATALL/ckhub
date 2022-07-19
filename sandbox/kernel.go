@@ -2,10 +2,8 @@ package sandbox
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -181,17 +179,9 @@ loop:
 
 		switch msg := msg.(type) {
 		case *jupyter.MessageDisplayData:
-			data := make(map[string]string)
-			for mime, content := range msg.Content.Data {
-				if strings.Split(mime, "/")[0] == "text" {
-					data[mime] = string(content)
-					continue
-				}
-				data[mime] = base64.StdEncoding.EncodeToString(content)
-			}
 			result.Outputs = append(result.Outputs, Output{
 				Kind: OutputKindDisplayData,
-				Data: data,
+				Data: msg.Content.Data,
 				Meta: msg.MetaData,
 			})
 		case *jupyter.MessageError:
