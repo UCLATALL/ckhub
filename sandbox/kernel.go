@@ -181,44 +181,32 @@ loop:
 
 		switch msg := msg.(type) {
 		case *jupyter.MessageDisplayData:
+			data := make(map[string]string)
 			for mime, content := range msg.Content.Data {
 				if strings.Split(mime, "/")[0] == "text" {
-					result.Events = append(result.Events, Event{
-						Kind:    EventKindOutput,
-						Message: string(content),
-					})
+					data[mime] = string(content)
 					continue
 				}
-				result.Events = append(result.Events, Event{
-					Kind:    EventKindPayload,
-					Mime:    mime,
-					Message: base64.StdEncoding.EncodeToString(content),
-				})
+				data[mime] = base64.StdEncoding.EncodeToString(content)
 			}
+			result.Outputs = append(result.Outputs, Output{
+				Kind: OutputKindDisplayData,
+				Data: data,
+				Meta: msg.MetaData,
+			})
 		case *jupyter.MessageError:
 			result.Errors = append(result.Errors, Error{
-				Message: msg.Content.EValue,
+				Data: msg.Content,
+				Meta: msg.MetaData,
 			})
 		case *jupyter.MessageExecuteReply:
 			result.Status = msg.Content.Status
 		case *jupyter.MessageStream:
-			switch msg.Content.Name {
-			case "stderr":
-				result.Events = append(result.Events, Event{
-					Kind:    EventKindError,
-					Message: msg.Content.Text,
-				})
-			case "stdout":
-				result.Events = append(result.Events, Event{
-					Kind:    EventKindOutput,
-					Message: msg.Content.Text,
-				})
-			default:
-				result.Events = append(result.Events, Event{
-					Kind:    EventKindNone,
-					Message: msg.Content.Text,
-				})
-			}
+			result.Outputs = append(result.Outputs, Output{
+				Kind: OutputKindStream,
+				Data: msg.Content,
+				Meta: msg.MetaData,
+			})
 		case *jupyter.MessageStatus:
 			if msg.Content.ExecutionState == jupyter.StateIdle {
 				break loop

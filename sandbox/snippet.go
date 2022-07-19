@@ -16,59 +16,58 @@ type Snippet struct {
 
 // Result represents a snippet execution result.
 type Result struct {
-	ID     uuid.UUID `json:"-"`
-	Status string    `json:"status,omitempty"`
-	Errors []Error   `json:"errors,omitempty"`
-	Events []Event   `json:"events,omitempty"`
+	ID      uuid.UUID `json:"-"`
+	Status  string    `json:"status,omitempty"`
+	Errors  []Error   `json:"errors,omitempty"`
+	Outputs []Output  `json:"outputs,omitempty"`
 }
 
 // Error represents a snippet execution error.
 type Error struct {
-	Message string `json:"message"`
+	Data any            `json:"data"`
+	Meta map[string]any `json:"metadata"`
 }
 
-// Event represents a snippet execution event.
-type Event struct {
-	Kind    EventKind `json:"kind"`
-	Mime    string    `json:"mime,omitempty"`
-	Message string    `json:"message,omitempty"`
+// Output represents a snippet execution output.
+type Output struct {
+	Kind OutputKind     `json:"type"`
+	Data any            `json:"data"`
+	Meta map[string]any `json:"metadata"`
 }
 
-// EventKind represetns an event kind.
-type EventKind uint
+// OutputKind represetns an output kind.
+type OutputKind uint
 
-// Well-known event kinds.
+// Well-known output kinds.
 const (
-	EventKindNone EventKind = iota
-	EventKindOutput
-	EventKindError
-	EventKindPayload
-	eventKindCount
+	OutputKindNone OutputKind = iota
+	OutputKindDisplayData
+	OutputKindStream
+	outputKindCount
 )
 
-var eventKindOutput = []string{
+var outputKindOutput = []string{
 	"none",
-	"output",
-	"error",
-	"payload",
+	"display_data",
+	"stream",
 	"invalid",
 }
 
-// String returns a string form of the event kind.
-func (kind EventKind) String() string {
-	if kind >= eventKindCount {
-		return fmt.Sprintf("%s (%d)", eventKindOutput[eventKindCount], kind)
+// String returns a string form of the output kind.
+func (kind OutputKind) String() string {
+	if kind >= outputKindCount {
+		return fmt.Sprintf("%s (%d)", outputKindOutput[outputKindCount], kind)
 	}
-	return eventKindOutput[kind]
+	return outputKindOutput[kind]
 }
 
-// ErrEventKindInvalid is returned when the event kind is invalid.
-var ErrEventKindInvalid = errors.New("invalid event kind")
+// ErrEventKindInvalid is returned when the output kind is invalid.
+var ErrEventKindInvalid = errors.New("invalid output")
 
-// MarshalText marshals event kind into text form.
-func (kind EventKind) MarshalText() ([]byte, error) {
-	if kind >= eventKindCount {
+// MarshalText marshals output kind into text form.
+func (kind OutputKind) MarshalText() ([]byte, error) {
+	if kind >= outputKindCount {
 		return nil, ErrEventKindInvalid
 	}
-	return []byte(eventKindOutput[kind]), nil
+	return []byte(outputKindOutput[kind]), nil
 }

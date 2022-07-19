@@ -48,7 +48,7 @@ type ParentHeader struct {
 }
 
 // MetaData contains the structure of the message metadata.
-type MetaData struct{}
+type MetaData map[string]any
 
 // MessageDisplayData contains details about a jupyter message
 // for MsgTypeDisplayData.
